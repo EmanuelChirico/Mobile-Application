@@ -1,0 +1,14 @@
+import { Text, View } from 'react-native';
+import { useSearchParams } from 'expo-router';
+
+export default function TravelDetail() {
+  const { id } = useSearchParams();
+  // TODO: fetch travel by id
+  return (
+    <View style={{ flex: 1, padding: 16 }}>
+      <Text style={{ fontSize: 24, fontWeight: 'bold' }}>Dettaglio Viaggio</Text>
+      <Text>ID: {id}</Text>
+      {/* TODO: mostra dettagli del viaggio */}
+    </View>
+  );
+}
