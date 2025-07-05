@@ -1,12 +1,7 @@
 # dependencies
 node_modules/
 
-# Expo
-.expo/
-.expo-shared/
-dist/
-web-build/
-expo-env.d.ts
+
 
 # Native builds
 .kotlinc/
