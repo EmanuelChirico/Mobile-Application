@@ -1,0 +1,56 @@
+# dependencies
+node_modules/
+
+# Expo
+.expo/
+.expo-shared/
+dist/
+web-build/
+expo-env.d.ts
+
+# Native builds
+.kotlinc/
+*.orig.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+
+# Metro
+.metro-health-check*
+
+# React Native iOS
+ios/Pods/
+ios/Podfile.lock
+ios/build/
+
+# React Native Android
+android/.gradle/
+android/local.properties
+android/app/build/
+android/build/
+
+# debug/logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log
+
+# macOS
+.DS_Store
+*.pem
+
+# local env files
+.env*
+!.env.example
+
+# TypeScript
+*.tsbuildinfo
+
+# Editor directories
+.vscode/
+.idea/
+
+# eventuali esempi o boilerplate che vuoi escludere
+app-example
