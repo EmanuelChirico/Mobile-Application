@@ -1,8 +1,3 @@
-# dependencies
-node_modules/
-
-
-
 # Native builds
 .kotlinc/
 *.orig.*
