@@ -31,7 +31,7 @@ app.get('/api/trips', async (req, res) => {
 
 
 app.post('/api/trips', async (req, res) => {
-  const { title, description, image_base64, category } = req.body; 
+  const { title, description, image_base64, category, location } = req.body; 
 
   try {
     const imageBuffer = image_base64
@@ -39,8 +39,9 @@ app.post('/api/trips', async (req, res) => {
       : null;
 
     const result = await pool.query(
-      'INSERT INTO trips (title, description, image, category) VALUES ($1, $2, $3, $4) RETURNING *',
-      [title, description, imageBuffer, category]
+     'INSERT INTO trips (title, description, image, category, location) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+      [title, description, imageBuffer, category, location]
+
     );
 
     res.json(result.rows[0]);

@@ -19,6 +19,31 @@ function AddScreen() {
   const [categories, setCategories] = useState<string[]>([]);
   const router = useRouter();
   const colorScheme = useColorScheme();
+  const [locationSuggestions, setLocationSuggestions] = useState<string[]>([]);
+
+const fetchLocationSuggestions = async (query: string) => {
+  if (!query || query.length < 3) {
+    setLocationSuggestions([]);
+    return;
+  }
+
+  try {
+    const response = await axios.get('https://nominatim.openstreetmap.org/search', {
+      params: {
+        q: query,
+        format: 'json',
+        addressdetails: 1,
+        limit: 5,
+      },
+    });
+
+    const suggestions = response.data.map((item: any) => item.display_name);
+    setLocationSuggestions(suggestions);
+  } catch (err) {
+    console.error('Errore durante il suggerimento località:', err);
+  }
+};
+
 
   const colors = {
     light: {
@@ -65,7 +90,7 @@ function AddScreen() {
     useCallback(() => {
       const fetchCategories = async () => {
         try {
-          const response = await axios.get('http://192.168.1.138:3000/api/tipology');
+          const response = await axios.get('http://192.168.0.229:3000/api/tipology');
           const names = response.data.map((item: { nome: string }) => item.nome);
           setCategories(names);
         } catch (error) {
@@ -95,13 +120,13 @@ function AddScreen() {
     }
 
     try {
-      const description = `Zona: ${zone}\nCategoria: ${selectedCategory}\n\n${notes}`;
-
-      await axios.post('http://192.168.1.138:3000/api/trips', {
+      const description = notes; 
+      await axios.post('http://192.168.0.229:3000/api/trips', {
         title,
         description,
         image_base64: imageBase64 || null,
         category: selectedCategory,
+        location: zone,
       });
 
       Alert.alert('Successo', 'Viaggio salvato correttamente!');
@@ -156,7 +181,10 @@ function AddScreen() {
         <Text style={{ fontSize: 18, fontWeight: '600', marginBottom: 6, marginTop: 16, color: theme.label }}>Location</Text>
         <TextInput
           value={zone}
-          onChangeText={setZone}
+          onChangeText={(text) => {
+            setZone(text);
+            fetchLocationSuggestions(text);
+          }}
           placeholder="e.g. Rome, Italy"
           style={{
             backgroundColor: theme.card,
@@ -172,6 +200,28 @@ function AddScreen() {
           onBlur={() => setIsZoneFocused(false)}
         />
 
+    {locationSuggestions.length > 0 && (
+    <View style={{ marginTop: 8, backgroundColor: theme.card, borderRadius: 8 }}>
+      {locationSuggestions.map((suggestion, index) => (
+    <Pressable
+      key={`${suggestion}-${index}`} // 👈 chiave univoca
+      onPress={() => {
+        setZone(suggestion);
+        setLocationSuggestions([]);
+      }}
+      style={{
+        paddingVertical: 10,
+        paddingHorizontal: 12,
+        borderBottomWidth: 1,
+        borderBottomColor: theme.border,
+      }}
+    >
+      <Text style={{ color: theme.text }}>{suggestion}</Text>
+    </Pressable>
+  ))}
+
+    </View>
+  )}
         <Text style={{ fontSize: 18, fontWeight: '600', marginBottom: 6, marginTop: 16, color: theme.label }}>Category</Text>
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 8 }}>
           {categories.map((cat) => (

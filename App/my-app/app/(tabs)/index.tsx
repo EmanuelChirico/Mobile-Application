@@ -45,7 +45,7 @@ export default function HomeScreen() {
 
   const fetchTravels = async () => {
     try {
-      const res = await axios.get('http://192.168.1.138:3000/api/trips');
+      const res = await axios.get('http://192.168.0.229:3000/api/trips');
       const data = res.data.map((trip: any) => ({
         id: trip.id,
         title: trip.title,
@@ -83,7 +83,7 @@ export default function HomeScreen() {
           style: 'destructive',
           onPress: async () => {
             try {
-              await axios.delete(`http://192.168.1.138:3000/api/trips/${id}`);
+              await axios.delete(`http://192.168.0.229:3000/api/trips/${id}`);
               fetchTravels();
             } catch (err) {
               console.error('Errore durante eliminazione:', err);

@@ -65,14 +65,14 @@ export default function TripDetail() {
       return;
     }
 
-    axios.get(`http://192.168.1.138:3000/api/trips/${id}`)
+    axios.get(`http://192.168.0.229:3000/api/trips/${id}`)
       .then(res => {
         setTrip(res.data);
         setIsFavorite(
           res.data.isFavorite ?? res.data.isfavorite ?? res.data.favorite ?? false
         );
       })
-      .catch(err => {
+      .catch(() => {
         Alert.alert('Errore', 'Viaggio non trovato o errore nel server.');
       })
       .finally(() => setLoading(false));
@@ -80,24 +80,22 @@ export default function TripDetail() {
 
   const toggleFavorite = async () => {
     const newValue = !isFavorite;
-    setIsFavorite(newValue); // Aggiorna localmente
+    setIsFavorite(newValue);
 
     try {
-      await axios.patch(`http://192.168.1.138:3000/api/trips/${trip?.id}/favorite`, {
-        isfavorite: newValue, // <-- deve combaciare col nome nel DB
+      await axios.patch(`http://192.168.0.229:3000/api/trips/${trip?.id}/favorite`, {
+        isfavorite: newValue,
       });
     } catch (err: any) {
       console.error('Errore aggiornamento preferito:', err.message);
       Alert.alert('Errore', 'Impossibile aggiornare il preferito.');
-      setIsFavorite(!newValue); // Ripristina se errore
+      setIsFavorite(!newValue);
     }
   };
 
-
-
   if (loading) {
     return (
-      <View style={[styles.centered, { backgroundColor: theme.background }] }>
+      <View style={[styles.centered, { backgroundColor: theme.background }]}>
         <ActivityIndicator size="large" color={theme.loading} />
         <Text style={{ marginTop: 10, color: theme.location }}>Caricamento viaggio...</Text>
       </View>
@@ -106,14 +104,14 @@ export default function TripDetail() {
 
   if (!trip) {
     return (
-      <View style={[styles.centered, { backgroundColor: theme.background }] }>
+      <View style={[styles.centered, { backgroundColor: theme.background }]}>
         <Text style={{ fontSize: 18, color: theme.notFound }}>Viaggio non trovato.</Text>
       </View>
     );
   }
 
   return (
-    <ScrollView style={[styles.container, { backgroundColor: theme.background }] }>
+    <ScrollView style={[styles.container, { backgroundColor: theme.background }]}>
       {trip.image && (
         <Image
           source={{ uri: `data:image/jpeg;base64,${trip.image}` }}
@@ -130,21 +128,39 @@ export default function TripDetail() {
           </TouchableOpacity>
         </View>
 
+        {/* Chip categoria visivo */}
         {trip.category && (
-          <View style={[styles.chip, { backgroundColor: theme.chip }] }>
+          <View style={[styles.chip, { backgroundColor: theme.chip }]}>
             <Text style={[styles.chipText, { color: theme.chipText }]}>{trip.category}</Text>
           </View>
         )}
 
-        <Text style={[styles.location, { color: theme.location }]}>📍 {trip.location}</Text>
-
-        {trip.date && (
-          <Text style={[styles.date, { color: theme.date }]}>🗓️ {new Date(trip.date).toLocaleDateString()}</Text>
+        {/* 📍 Zona */}
+        {trip.location && (
+          <View style={styles.iconRow}>
+            <Text style={styles.icon}>📍</Text>
+            <Text style={[styles.location, { color: theme.location }]}>
+              {trip.location}
+            </Text>
+          </View>
         )}
 
+        {/* 🗓️ Data */}
+        {trip.date && (
+          <View style={styles.iconRow}>
+            <Text style={styles.icon}>🗓️</Text>
+            <Text style={[styles.date, { color: theme.date }]}>
+              {new Date(trip.date).toLocaleDateString()}
+            </Text>
+          </View>
+        )}
+
+        {/* 📝 Descrizione */}
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, { color: theme.sectionTitle }]}>📝 Descrizione</Text>
-          <Text style={[styles.description, { color: theme.description }]}>{trip.description}</Text>
+          <Text style={[styles.description, { color: theme.description }]}>
+            {trip.description}
+          </Text>
         </View>
       </View>
     </ScrollView>
@@ -198,13 +214,22 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     fontSize: 13,
   },
+  iconRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 6,
+  },
+  icon: {
+    fontSize: 16,
+    marginRight: 6,
+    lineHeight: 20,
+    alignSelf: 'center',
+  },
   location: {
     fontSize: 16,
-    marginBottom: 4,
   },
   date: {
     fontSize: 14,
-    marginBottom: 16,
   },
   section: {
     marginTop: 16,
@@ -219,4 +244,3 @@ const styles = StyleSheet.create({
     lineHeight: 22,
   },
 });
-
