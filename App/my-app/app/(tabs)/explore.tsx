@@ -1,4 +1,5 @@
 import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, TextInput } from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useColorScheme } from '../../hooks/useColorScheme';
@@ -100,7 +101,7 @@ export default function ExploreScreen() {
   return (
     <View style={{ flex: 1, padding: 16, backgroundColor: theme.background }}>
       <Text style={{ fontSize: 28, fontWeight: 'bold', textAlign: 'center', color: theme.title, marginBottom: 20 }}>
-        🧭 Explore Categories
+       Explore Categories
       </Text>
 
       <FlatList
@@ -187,12 +188,23 @@ export default function ExploreScreen() {
           padding: 16,
           borderRadius: 12,
           alignItems: 'center',
+          flexDirection: 'row',
+          justifyContent: 'center',
         }}
         onPress={() => setShowInput(!showInput)}
       >
-        <Text style={{ color: theme.buttonText, fontSize: 16, fontWeight: 'bold' }}>
-          ➕ {showInput ? 'Cancel' : 'Add new category'}
-        </Text>
+        {/* Use MaterialCommunityIcons for add/cancel icon for consistency */}
+        {showInput ? (
+          <>
+            <MaterialCommunityIcons name="close-circle-outline" size={22} color={theme.buttonText} style={{ marginRight: 8 }} />
+            <Text style={{ color: theme.buttonText, fontSize: 16, fontWeight: 'bold' }}>Cancel</Text>
+          </>
+        ) : (
+          <>
+            <MaterialCommunityIcons name="plus-circle-outline" size={22} color={theme.buttonText} style={{ marginRight: 8 }} />
+            <Text style={{ color: theme.buttonText, fontSize: 16, fontWeight: 'bold' }}>Add new category</Text>
+          </>
+        )}
       </TouchableOpacity>
     </View>
   );

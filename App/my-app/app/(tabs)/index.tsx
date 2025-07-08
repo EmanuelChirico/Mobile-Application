@@ -3,6 +3,7 @@ import { useFocusEffect, Link } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import axios from 'axios';
 import { useColorScheme } from '../../hooks/useColorScheme';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 type Trip = {
   id: number;
@@ -168,9 +169,13 @@ export default function HomeScreen() {
                 paddingHorizontal: 12,
                 backgroundColor: theme.delete,
                 borderRadius: 20,
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 4,
               }}
             >
-              <Text style={{ color: '#fff', fontWeight: '600' }}>🗑 Delete</Text>
+              <MaterialCommunityIcons name="trash-can-outline" size={20} color="#fff" />
+              <Text style={{ color: '#fff', fontWeight: '600', marginLeft: 4 }}>Delete</Text>
             </TouchableOpacity>
           </View>
         )}

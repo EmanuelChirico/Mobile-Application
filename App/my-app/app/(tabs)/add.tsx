@@ -156,10 +156,10 @@ const fetchLocationSuggestions = async (query: string) => {
         keyboardShouldPersistTaps="handled"
       >
         <Text style={{ fontSize: 28, fontWeight: 'bold', textAlign: 'center', marginBottom: 24, color: theme.text }}>
-          Add your new travel!
+          Tell me more!
         </Text>
 
-        <Text style={{ fontSize: 18, fontWeight: '600', marginBottom: 6, marginTop: 16, color: theme.label }}>Travel Name</Text>
+        <Text style={{ fontSize: 18, fontWeight: '600', marginBottom: 6, marginTop: 16, color: theme.label }}>Trip Title</Text>
         <TextInput
           value={title}
           onChangeText={setTitle}
