@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
 import {
   View, Text, Image, StyleSheet,
-  ScrollView, ActivityIndicator,
-  Alert, TouchableOpacity
+  Animated, ActivityIndicator,
+  Alert, TouchableOpacity,
+  Dimensions
 } from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useLocalSearchParams } from 'expo-router';
 import axios from 'axios';
 import { useColorScheme } from '../../hooks/useColorScheme';
@@ -24,7 +26,9 @@ export default function TripDetail() {
   const [trip, setTrip] = useState<Trip | null>(null);
   const [loading, setLoading] = useState(true);
   const [isFavorite, setIsFavorite] = useState(false);
+  const [aspectRatio, setAspectRatio] = useState<number | null>(null);
   const colorScheme = useColorScheme();
+  const scrollY = useState(new Animated.Value(0))[0];
 
   const colors = {
     light: {
@@ -71,6 +75,19 @@ export default function TripDetail() {
         setIsFavorite(
           res.data.isFavorite ?? res.data.isfavorite ?? res.data.favorite ?? false
         );
+        // Calcola aspect ratio dell'immagine se presente
+        if (res.data.image) {
+          // Per immagini base64, serve specificare width/height manualmente
+          Image.getSize(
+            `data:image/jpeg;base64,${res.data.image}`,
+            (width, height) => {
+              setAspectRatio(width / height);
+            },
+            () => {
+              setAspectRatio(16 / 9); // fallback
+            }
+          );
+        }
       })
       .catch(err => {
         Alert.alert('Errore', 'Viaggio non trovato o errore nel server.');
@@ -113,20 +130,57 @@ export default function TripDetail() {
   }
 
   return (
-    <ScrollView style={[styles.container, { backgroundColor: theme.background }] }>
-      {trip.image && (
-        <Image
-          source={{ uri: `data:image/jpeg;base64,${trip.image}` }}
-          style={styles.image}
-          resizeMode="cover"
-        />
+    <Animated.ScrollView
+      style={[styles.container, { backgroundColor: theme.background }]}
+      scrollEventThrottle={16}
+      onScroll={Animated.event(
+        [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+        { useNativeDriver: true }
+      )}
+    >
+      {trip.image && aspectRatio && (
+        <View style={{ zIndex: 1 }}>
+          <Animated.Image
+            source={{ uri: `data:image/jpeg;base64,${trip.image}` }}
+            style={[
+              styles.image,
+              {
+                width: Dimensions.get('window').width,
+                height: Dimensions.get('window').width / aspectRatio,
+                transform: [
+                  {
+                    translateY: scrollY.interpolate({
+                      inputRange: [-200, 0, 200],
+                      outputRange: [-100, 0, 100],
+                      extrapolate: 'clamp',
+                    }),
+                  },
+                  {
+                    scale: scrollY.interpolate({
+                      inputRange: [-200, 0, 200],
+                      outputRange: [1.3, 1, 1],
+                      extrapolate: 'clamp',
+                    }),
+                  },
+                ],
+              },
+            ]}
+            resizeMode="cover"
+          />
+        </View>
       )}
 
-      <View style={styles.content}>
+      <View style={[styles.content, { zIndex: 2, backgroundColor: theme.background, marginTop: -20, borderTopLeftRadius: 20, borderTopRightRadius: 20, paddingTop: 30, minHeight: 100 }]}> 
+        {/* ...existing code... */}
         <View style={styles.headerRow}>
           <Text style={[styles.title, { color: theme.title }]}>{trip.title}</Text>
           <TouchableOpacity onPress={toggleFavorite}>
-            <Text style={styles.favorite}>{isFavorite ? '❤️' : '🤍'}</Text>
+            <MaterialCommunityIcons
+              name={isFavorite ? 'heart' : 'heart-outline'}
+              size={28}
+              color={isFavorite ? '#FF4B4B' : theme.title}
+              style={styles.favorite}
+            />
           </TouchableOpacity>
         </View>
 
@@ -136,18 +190,31 @@ export default function TripDetail() {
           </View>
         )}
 
-        <Text style={[styles.location, { color: theme.location }]}>📍 {trip.location}</Text>
-
-        {trip.date && (
-          <Text style={[styles.date, { color: theme.date }]}>🗓️ {new Date(trip.date).toLocaleDateString()}</Text>
-        )}
+        {/* ...existing code... */}
+        <View style={{ marginBottom: 16 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 2 }}>
+            <MaterialCommunityIcons name="map-marker" size={18} color={theme.location} style={{ marginRight: 4 }} />
+            <Text style={[styles.location, { color: theme.location, fontWeight: 'bold', maxWidth: '90%' }]} numberOfLines={1} ellipsizeMode="tail">{(trip.location || (trip.description && trip.description.split('\n')[0].replace('Zona: ', '')) || 'Zona non disponibile')}</Text>
+          </View>
+          {trip.date && (
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <MaterialCommunityIcons name="calendar" size={18} color={theme.date} style={{ marginRight: 4, marginTop: -15 }} />
+              <Text style={[styles.date, { color: theme.date }]}>{new Date(trip.date).toLocaleDateString()}</Text>
+            </View>
+          )}
+        </View>
 
         <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: theme.sectionTitle }]}>📝 Descrizione</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
+            <MaterialCommunityIcons name="note-text-outline" size={18} color={theme.sectionTitle} style={{ marginRight: 6 }} />
+            <Text style={[styles.sectionTitle, { color: theme.sectionTitle }]}>Descrizione</Text>
+          </View>
           <Text style={[styles.description, { color: theme.description }]}>{trip.description}</Text>
         </View>
+        {/* Spazio vuoto extra in fondo per evitare che la descrizione sia attaccata al bordo */}
+        <View style={{ height: Dimensions.get('window').height / 2 }} />
       </View>
-    </ScrollView>
+    </Animated.ScrollView>
   );
 }
 
@@ -162,10 +229,9 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   image: {
-    width: '100%',
-    height: 260,
     borderBottomLeftRadius: 16,
     borderBottomRightRadius: 16,
+    backgroundColor: '#eee',
   },
   content: {
     padding: 20,
@@ -219,4 +285,5 @@ const styles = StyleSheet.create({
     lineHeight: 22,
   },
 });
+
 

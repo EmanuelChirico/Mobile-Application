@@ -1,6 +1,6 @@
 import { Tabs } from 'expo-router';
 import { Platform, StyleSheet } from 'react-native';
-import { Ionicons, MaterialCommunityIcons, Feather, AntDesign } from '@expo/vector-icons';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useColorScheme } from '../../hooks/useColorScheme';
 
 export default function Layout() {
@@ -64,7 +64,7 @@ export default function Layout() {
         name="index"
         options={{
           title: 'Home',
-          tabBarIcon: ({ color }) => <Ionicons name="home-outline" size={24} color={color} />,
+          tabBarIcon: ({ color }) => <MaterialCommunityIcons name="home-variant-outline" size={24} color={color} />,
         }}
       />
       <Tabs.Screen
@@ -78,14 +78,14 @@ export default function Layout() {
         name="add"
         options={{
           title: 'Add Trip',
-          tabBarIcon: ({ color }) => <AntDesign name="pluscircleo" size={24} color={color} />,
+          tabBarIcon: ({ color }) => <MaterialCommunityIcons name="plus-circle-outline" size={24} color={color} />,
         }}
       />
       <Tabs.Screen
         name="search"
         options={{
           title: 'Cerca',
-          tabBarIcon: ({ color }) => <Feather name="search" size={24} color={color} />,
+          tabBarIcon: ({ color }) => <MaterialCommunityIcons name="magnify" size={24} color={color} />,
         }}
       />
     </Tabs>
