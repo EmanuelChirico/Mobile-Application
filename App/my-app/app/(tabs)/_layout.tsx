@@ -70,14 +70,14 @@ export default function Layout() {
       <Tabs.Screen
         name="explore"
         options={{
-          title: 'Categorie',
+          title: 'Categories',
           tabBarIcon: ({ color }) => <MaterialCommunityIcons name="shape-outline" size={24} color={color} />,
         }}
       />
       <Tabs.Screen
         name="add"
         options={{
-          title: 'Aggiungi',
+          title: 'Add Trip',
           tabBarIcon: ({ color }) => <AntDesign name="pluscircleo" size={24} color={color} />,
         }}
       />
