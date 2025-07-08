@@ -35,8 +35,13 @@ const fetchLocationSuggestions = async (query: string) => {
         addressdetails: 1,
         limit: 5,
       },
+      headers: {
+        'User-Agent': 'MobileApp/1.0 (your@email.com)',
+        'Accept-Language': 'it',
+      },
     });
-
+    // Debug: stampa la risposta
+    console.log('Suggerimenti Nominatim:', response.data);
     const suggestions = response.data.map((item: any) => item.display_name);
     setLocationSuggestions(suggestions);
   } catch (err) {
