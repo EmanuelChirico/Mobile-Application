@@ -1,5 +1,5 @@
 import { View, Text, TextInput, Pressable, ScrollView, Alert, Image, KeyboardAvoidingView, Platform } from 'react-native';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { useRouter } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
@@ -13,11 +13,12 @@ export default function AddEditScreen() {
   const [categories, setCategories] = useState<string[]>([]);
   const router = useRouter();
 
-  // Carica le categorie dal backend
-  useEffect(() => {
+
+  useFocusEffect(
+    useCallback(() => {
     const fetchCategories = async () => {
       try {
-        const response = await axios.get('http://172.19.241.82:3000/api/tipology');
+        const response = await axios.get('http://10.56.186.198:3000/api/tipology');
         const names = response.data.map((item: { nome: string }) => item.nome);
         setCategories(names);
       } catch (error) {
@@ -26,7 +27,8 @@ export default function AddEditScreen() {
     };
 
     fetchCategories();
-  }, []);
+  }, [])
+  );
 
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -49,7 +51,7 @@ export default function AddEditScreen() {
     try {
       const description = `Zona: ${zone}\nCategoria: ${selectedCategory}\n\n${notes}`;
 
-      await axios.post('http://172.19.241.82:3000/api/trips', {
+      await axios.post('http://10.56.186.198:3000/api/trips', {
         title,
         description,
         image_base64: imageBase64 || null,
@@ -149,6 +151,7 @@ export default function AddEditScreen() {
 }
 
 import { StyleSheet } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 
 const styles = StyleSheet.create({
   title: {

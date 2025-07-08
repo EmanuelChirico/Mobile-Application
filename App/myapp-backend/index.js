@@ -75,7 +75,6 @@ app.get('/api/trips/:id', async (req, res) => {
 });
 
 
-
 app.get('/api/tipology', async (req, res) => {
   try {
     const result = await pool.query('SELECT nome FROM tipology ORDER BY nome ASC');
@@ -141,6 +140,23 @@ app.delete('/api/trips/:id', async (req, res) => {
   }
 });
 
+
+app.delete('/api/tipology/:nome', async (req, res) => {
+  const { nome } = req.params;
+
+  try {
+    const result = await pool.query('DELETE FROM tipology WHERE nome = $1', [nome]);
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: 'Tipologia non trovata' });
+    }
+
+    res.status(204).send(); // Successo, nessun contenuto
+  } catch (err) {
+    console.error('Errore durante eliminazione tipologia:', err);
+    res.status(500).json({ error: 'Errore interno del server' });
+  }
+});
 
 
 

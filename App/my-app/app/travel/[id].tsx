@@ -31,7 +31,7 @@ export default function TripDetail() {
       return;
     }
 
-    axios.get(`http://172.19.241.82:3000/api/trips/${id}`)
+    axios.get(`http://10.56.186.198:3000/api/trips/${id}`)
       .then(res => {
         setTrip(res.data);
         setIsFavorite(res.data.isFavorite || false);
@@ -47,7 +47,7 @@ const toggleFavorite = async () => {
   setIsFavorite(newValue); // Aggiorna localmente
 
   try {
-    await axios.patch(`http://172.19.241.82:3000/api/trips/${trip?.id}/favorite`, {
+    await axios.patch(`http://10.56.186.198:3000/api/trips/${trip?.id}/favorite`, {
       isfavorite: newValue, // <-- deve combaciare col nome nel DB
     });
   } catch (err: any) {
@@ -117,19 +117,21 @@ const toggleFavorite = async () => {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#FDF6EC',
+    backgroundColor: '#FAF6F0',
     flex: 1,
   },
   centered: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#FDF6EC',
+    backgroundColor: '#FAF6F0',
     padding: 20,
   },
   image: {
     width: '100%',
-    height: 250,
+    height: 260,
+    borderBottomLeftRadius: 16,
+    borderBottomRightRadius: 16,
   },
   content: {
     padding: 20,
@@ -138,54 +140,56 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: 14,
   },
   title: {
-    fontSize: 26,
-    fontWeight: 'bold',
-    color: '#333',
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#2E2E2E',
     flex: 1,
     flexWrap: 'wrap',
     marginRight: 10,
   },
   favorite: {
     fontSize: 28,
+    paddingHorizontal: 6,
+  },
+  chip: {
+    alignSelf: 'flex-start',
+    backgroundColor: '#D8A27C',
+    paddingVertical: 4,
+    paddingHorizontal: 12,
+    borderRadius: 16,
+    marginBottom: 8,
+  },
+  chipText: {
+    color: '#fff',
+    fontWeight: '600',
+    fontSize: 13,
   },
   location: {
     fontSize: 16,
-    color: '#555',
-    marginBottom: 6,
+    color: '#5C5C5C',
+    marginBottom: 4,
   },
   date: {
     fontSize: 14,
-    color: '#888',
+    color: '#999',
     marginBottom: 16,
   },
   section: {
-    marginTop: 10,
+    marginTop: 16,
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: '600',
     color: '#444',
-    marginBottom: 6,
-  },
-  description: {
-    fontSize: 16,
-    lineHeight: 22,
-    color: '#444',
-  },
-  chip: {
-    alignSelf: 'flex-start',
-    backgroundColor: '#C19A6B',
-    paddingVertical: 4,
-    paddingHorizontal: 10,
-    borderRadius: 14,
     marginBottom: 8,
   },
-  chipText: {
-    color: '#fff',
-    fontWeight: '500',
-    fontSize: 13,
+  description: {
+    fontSize: 15,
+    lineHeight: 22,
+    color: '#4B4B4B',
   },
 });
+

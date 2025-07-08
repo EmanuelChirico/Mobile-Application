@@ -1,5 +1,6 @@
 import { Tabs } from 'expo-router';
-import { Text, StyleSheet, Platform } from 'react-native';
+import { Platform, StyleSheet } from 'react-native';
+import { Ionicons, MaterialCommunityIcons, Feather, AntDesign } from '@expo/vector-icons';
 
 export default function Layout() {
   return (
@@ -10,8 +11,8 @@ export default function Layout() {
         headerTitleAlign: 'center',
         tabBarStyle: styles.tabBar,
         tabBarShowLabel: true,
-        tabBarActiveTintColor: '#FFAB00',
-        tabBarInactiveTintColor: '#888',
+        tabBarActiveTintColor: '#FFB300',
+        tabBarInactiveTintColor: '#B0AFAF',
         tabBarLabelStyle: styles.tabLabel,
       }}
     >
@@ -19,28 +20,28 @@ export default function Layout() {
         name="index"
         options={{
           title: 'Home',
-          tabBarIcon: ({ color }) => <Text style={[styles.icon, { color }]}>🏠</Text>,
+          tabBarIcon: ({ color }) => <Ionicons name="home-outline" size={24} color={color} />,
         }}
       />
       <Tabs.Screen
         name="explore"
         options={{
           title: 'Categorie',
-          tabBarIcon: ({ color }) => <Text style={[styles.icon, { color }]}>🗂️</Text>,
+          tabBarIcon: ({ color }) => <MaterialCommunityIcons name="shape-outline" size={24} color={color} />,
         }}
       />
       <Tabs.Screen
         name="add"
         options={{
           title: 'Aggiungi',
-          tabBarIcon: ({ color }) => <Text style={[styles.icon, { color }]}>➕</Text>,
+          tabBarIcon: ({ color }) => <AntDesign name="pluscircleo" size={24} color={color} />,
         }}
       />
       <Tabs.Screen
         name="search"
         options={{
           title: 'Cerca',
-          tabBarIcon: ({ color }) => <Text style={[styles.icon, { color }]}>🔍</Text>,
+          tabBarIcon: ({ color }) => <Feather name="search" size={24} color={color} />,
         }}
       />
     </Tabs>
@@ -49,34 +50,33 @@ export default function Layout() {
 
 const styles = StyleSheet.create({
   header: {
-    backgroundColor: '#c8ad7f',
+    backgroundColor: '#fdf6e3',
     shadowColor: 'transparent',
     elevation: 0,
   },
   headerTitle: {
-    fontWeight: 'bold',
-    color: '#fff',
+    fontWeight: '600',
+    fontSize: 18,
+    color: '#3E3E3E',
   },
- tabBar: {
-    backgroundColor: '#fff',
+  tabBar: {
     position: 'absolute',
-    bottom: Platform.OS === 'ios' ? 29 : 8,
-    left: 16,
-    right: 16,
-    height: 60,
-    borderRadius: 30,
-    borderTopWidth: 0,
+    bottom: Platform.OS === 'ios' ? 30 : 16,
+    left: 20,
+    right: 20,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: '#ffffff',
     shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-    elevation: 10,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 12,
+    paddingHorizontal: 16,
   },
   tabLabel: {
     fontSize: 12,
-    fontWeight: '500',
+    fontWeight: '600',
     paddingBottom: 4,
-  },
-  icon: {
-    fontSize: 24,
   },
 });

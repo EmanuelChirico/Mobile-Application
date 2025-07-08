@@ -8,7 +8,7 @@ export default function ExploreScreen() {
   const [newCategory, setNewCategory] = useState('');
   const [showInput, setShowInput] = useState(false);
 
-  const API_URL = 'http://172.19.241.82:3000/api/tipology';
+  const API_URL = 'http://10.56.186.198:3000/api/tipology';
 
   useEffect(() => {
     fetchCategories();
@@ -46,6 +46,16 @@ export default function ExploreScreen() {
     }
   };
 
+  const deleteCategory = async (nameToDelete: string) => {
+    try {
+      await axios.delete(`${API_URL}/${encodeURIComponent(nameToDelete)}`);
+      setCategories(prev => prev.filter(name => name !== nameToDelete));
+    } catch (err) {
+      console.error('Errore durante eliminazione:', err);
+      alert('❌ Errore durante l\'eliminazione della categoria');
+    }
+  };
+
   if (loading) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F8F4E1' }}>
@@ -66,7 +76,7 @@ export default function ExploreScreen() {
         numColumns={2}
         columnWrapperStyle={{ justifyContent: 'space-between', marginBottom: 16 }}
         renderItem={({ item }) => (
-          <TouchableOpacity
+          <View
             style={{
               backgroundColor: '#E3D5B8',
               paddingVertical: 20,
@@ -79,10 +89,29 @@ export default function ExploreScreen() {
               shadowOpacity: 0.1,
               shadowRadius: 4,
               elevation: 3,
+              position: 'relative',
             }}
           >
             <Text style={{ fontSize: 18, fontWeight: '600', color: '#4C3D25' }}>{item}</Text>
-          </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={() => deleteCategory(item)}
+              style={{
+                position: 'absolute',
+                top: 6,
+                right: 10,
+                backgroundColor: '#w',
+                borderRadius: 12,
+                padding: 4,
+                width: 24,
+                height:24,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <Text style={{ color: 'black', fontWeight: 'bold' }}>×</Text>
+            </TouchableOpacity>
+          </View>
         )}
       />
 
