@@ -27,7 +27,7 @@ export default function TripDetail() {
   const [loading, setLoading] = useState(true);
   const [isFavorite, setIsFavorite] = useState(false);
   const [aspectRatio, setAspectRatio] = useState<number | null>(null);
-  const [repeat, setToRepeat] = useState<boolean>(false);
+  const [ripeti, setRipeti] = useState<boolean>(false);
   const colorScheme = useColorScheme();
   const scrollY = useState(new Animated.Value(0))[0];
 
@@ -70,13 +70,13 @@ export default function TripDetail() {
       return;
     }
 
-    axios.get(`http://192.168.0.229:3000/api/trips/${id}`)
+    axios.get(`http://192.168.1.138:3000/api/trips/${id}`)
       .then(res => {
         setTrip(res.data);
         setIsFavorite(
           res.data.isFavorite ?? res.data.isfavorite ?? res.data.favorite ?? false
         );
-        setToRepeat(!!(res.data.repeat ?? res.data.repeat ?? res.data.repeat ?? false));
+        setRipeti(!!(res.data.ripeti ?? res.data.ripeti ?? res.data.ripeti ?? false));
         // Calcola aspect ratio dell'immagine se presente
         if (res.data.image) {
           // Per immagini base64, serve specificare width/height manualmente
@@ -102,7 +102,7 @@ export default function TripDetail() {
     setIsFavorite(newValue);
 
     try {
-      await axios.patch(`http://192.168.0.229:3000/api/trips/${trip?.id}/favorite`, {
+      await axios.patch(`http://192.168.1.138:3000/api/trips/${trip?.id}/favorite`, {
         isfavorite: newValue,
       });
     } catch (err: any) {
@@ -127,6 +127,21 @@ export default function TripDetail() {
         <Text style={{ fontSize: 18, color: theme.notFound }}>Viaggio non trovato.</Text>
       </View>
     );
+  }
+
+
+  // Funzione toggleRepeat per il refresh
+  async function toggleRepeat() {
+    const newValue = !ripeti;
+    setRipeti(newValue);
+    try {
+      await axios.patch(`http://192.168.1.138:3000/api/trips/${trip?.id}/repeat`, {
+        ripeti: newValue,
+      });
+    } catch (err) {
+      setRipeti(!newValue);
+      Alert.alert('Errore', 'Impossibile aggiornare lo stato "da ripetere".');
+    }
   }
 
   return (
@@ -184,27 +199,15 @@ export default function TripDetail() {
               />
             </TouchableOpacity>
             <View style={{ width: 8 }} />
-            <TouchableOpacity
-              onPress={async () => {
-                const newValue = !repeat;
-                setToRepeat(newValue);
-                try {
-                  await axios.patch(`http://192.168.1.138:3000/api/trips/${trip?.id}/repeat`, {
-                    repeat: newValue,
-                  });
-                } catch (err) {
-                  setToRepeat(!newValue);
-                  Alert.alert('Errore', 'Impossibile aggiornare lo stato "da ripetere".');
-                }
-              }}
-            >
+            <TouchableOpacity onPress={toggleRepeat}>
               <MaterialCommunityIcons
                 name="refresh"
                 size={28}
-                color={repeat ? '#2196F3' : theme.location}
+                color={ripeti ? '#2196F3' : theme.location}
                 style={{ marginLeft: 0, marginRight: 2, opacity: 0.85 }}
               />
             </TouchableOpacity>
+
           </View>
         </View>
 

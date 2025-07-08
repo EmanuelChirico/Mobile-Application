@@ -90,7 +90,7 @@ const fetchLocationSuggestions = async (query: string) => {
     useCallback(() => {
       const fetchCategories = async () => {
         try {
-          const response = await axios.get('http://192.168.0.229:3000/api/tipology');
+          const response = await axios.get('http://192.168.1.138:3000/api/tipology');
           const names = response.data.map((item: { nome: string }) => item.nome);
           setCategories(names);
         } catch (error) {
@@ -121,7 +121,7 @@ const fetchLocationSuggestions = async (query: string) => {
 
     try {
       const description = notes; 
-      await axios.post('http://192.168.0.229:3000/api/trips', {
+      await axios.post('http://192.168.1.138:3000/api/trips', {
         title,
         description,
         image_base64: imageBase64 || null,

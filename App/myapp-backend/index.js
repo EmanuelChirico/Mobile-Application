@@ -123,6 +123,27 @@ app.patch('/api/trips/:id/favorite', async (req, res) => {
   }
 });
 
+app.patch('/api/trips/:id/repeat', async (req, res) => {
+  const { id } = req.params;
+  const { ripeti } = req.body;
+
+  try {
+    const result = await pool.query(
+      'UPDATE trips SET ripeti = $1 WHERE id = $2 RETURNING *',
+      [ripeti, id]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: 'Viaggio non trovato' });
+    }
+
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error('Errore aggiornamento "da ripetere":', err);
+    res.status(500).json({ error: 'Errore interno del server' });
+  }
+});
+
 
 app.delete('/api/trips/:id', async (req, res) => {
   const { id } = req.params;

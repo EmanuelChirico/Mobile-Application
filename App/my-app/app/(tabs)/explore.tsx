@@ -42,7 +42,7 @@ export default function ExploreScreen() {
   };
   const theme = colorScheme === 'dark' ? colors.dark : colors.light;
 
-  const API_URL = 'http://192.168.0.229:3000/api/tipology';
+  const API_URL = 'http://192.168.1.138:3000/api/tipology';
 
   useEffect(() => {
     fetchCategories();
