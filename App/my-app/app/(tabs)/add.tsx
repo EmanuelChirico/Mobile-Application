@@ -6,7 +6,11 @@ import * as ImagePicker from 'expo-image-picker';
 import { useColorScheme } from '../../hooks/useColorScheme';
 import { useFocusEffect } from '@react-navigation/native';
 
-const AddScreen = () => {
+function AddScreen() {
+  // Focus state per i campi
+  const [isTitleFocused, setIsTitleFocused] = useState(false);
+  const [isZoneFocused, setIsZoneFocused] = useState(false);
+  const [isNotesFocused, setIsNotesFocused] = useState(false);
   const [title, setTitle] = useState('');
   const [zone, setZone] = useState('');
   const [notes, setNotes] = useState('');
@@ -23,6 +27,7 @@ const AddScreen = () => {
       text: '#2C2C2C',
       label: '#444',
       border: '#ccc',
+      borderActive: '#FFD600',
       placeholder: '#999',
       button: '#6C4F3D',
       buttonText: '#fff',
@@ -40,6 +45,7 @@ const AddScreen = () => {
       text: '#FFD580',
       label: '#FFD580',
       border: '#444',
+      borderActive: '#FFD600',
       placeholder: '#aaa',
       button: '#FFD580',
       buttonText: '#232323',
@@ -51,6 +57,7 @@ const AddScreen = () => {
       imageButtonText: '#232323',
       noImage: '#aaa',
     },
+  // RIMUOVI questa duplicazione errata dei focus state
   };
   const theme = colorScheme === 'dark' ? colors.dark : colors.light;
 
@@ -114,12 +121,14 @@ const AddScreen = () => {
 
   return (
     <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'padding'}
       style={{ flex: 1 }}
+      keyboardVerticalOffset={80}
     >
       <ScrollView
         contentContainerStyle={{ padding: 20, backgroundColor: theme.background, paddingBottom: 80 }}
         showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
       >
         <Text style={{ fontSize: 28, fontWeight: 'bold', textAlign: 'center', marginBottom: 24, color: theme.text }}>
           Add your new travel!
@@ -136,10 +145,12 @@ const AddScreen = () => {
             padding: 14,
             fontSize: 16,
             borderWidth: 1,
-            borderColor: theme.border,
+            borderColor: isTitleFocused ? theme.borderActive : theme.border,
             color: theme.text,
           }}
           placeholderTextColor={theme.placeholder}
+          onFocus={() => setIsTitleFocused(true)}
+          onBlur={() => setIsTitleFocused(false)}
         />
 
         <Text style={{ fontSize: 18, fontWeight: '600', marginBottom: 6, marginTop: 16, color: theme.label }}>Location</Text>
@@ -153,10 +164,12 @@ const AddScreen = () => {
             padding: 14,
             fontSize: 16,
             borderWidth: 1,
-            borderColor: theme.border,
+            borderColor: isZoneFocused ? theme.borderActive : theme.border,
             color: theme.text,
           }}
           placeholderTextColor={theme.placeholder}
+          onFocus={() => setIsZoneFocused(true)}
+          onBlur={() => setIsZoneFocused(false)}
         />
 
         <Text style={{ fontSize: 18, fontWeight: '600', marginBottom: 6, marginTop: 16, color: theme.label }}>Category</Text>
@@ -213,12 +226,14 @@ const AddScreen = () => {
             padding: 14,
             fontSize: 16,
             borderWidth: 1,
-            borderColor: theme.border,
+            borderColor: isNotesFocused ? theme.borderActive : theme.border,
             color: theme.text,
             minHeight: 100,
             textAlignVertical: 'top',
           }}
           placeholderTextColor={theme.placeholder}
+          onFocus={() => setIsNotesFocused(true)}
+          onBlur={() => setIsNotesFocused(false)}
         />
 
         <Pressable style={{ backgroundColor: theme.button, paddingVertical: 16, borderRadius: 30, marginTop: 30, alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.15, shadowRadius: 5, elevation: 4 }} onPress={handleSave}>
