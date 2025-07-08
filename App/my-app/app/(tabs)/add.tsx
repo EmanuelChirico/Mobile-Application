@@ -60,14 +60,12 @@ const handleSave = async () => {
 
     Alert.alert('Successo', 'Viaggio salvato correttamente!');
 
-    // ✅ Svuota tutti i campi
     setTitle('');
     setZone('');
     setNotes('');
     setSelectedCategory('');
     setImageBase64(null);
 
-    // ✅ Opzionale: torna alla schermata iniziale
     router.replace('/');
   } catch (err) {
     console.error(err);
