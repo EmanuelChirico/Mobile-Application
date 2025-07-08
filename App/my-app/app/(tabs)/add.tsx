@@ -42,29 +42,39 @@ export default function AddEditScreen() {
     }
   };
 
-  const handleSave = async () => {
-    if (!title.trim()) {
-      Alert.alert('Errore', 'Il titolo è obbligatorio');
-      return;
-    }
+const handleSave = async () => {
+  if (!title.trim()) {
+    Alert.alert('Errore', 'Il titolo è obbligatorio');
+    return;
+  }
 
-    try {
-      const description = `Zona: ${zone}\nCategoria: ${selectedCategory}\n\n${notes}`;
+  try {
+    const description = `Zona: ${zone}\nCategoria: ${selectedCategory}\n\n${notes}`;
 
-      await axios.post('http://10.56.186.198:3000/api/trips', {
-        title,
-        description,
-        image_base64: imageBase64 || null,
-        category: selectedCategory
-      });
+    await axios.post('http://10.56.186.198:3000/api/trips', {
+      title,
+      description,
+      image_base64: imageBase64 || null,
+      category: selectedCategory,
+    });
 
-      Alert.alert('Successo', 'Viaggio salvato correttamente!');
-      router.replace('/');
-    } catch (err) {
-      console.error(err);
-      Alert.alert('Errore', 'Impossibile salvare il viaggio.');
-    }
-  };
+    Alert.alert('Successo', 'Viaggio salvato correttamente!');
+
+    // ✅ Svuota tutti i campi
+    setTitle('');
+    setZone('');
+    setNotes('');
+    setSelectedCategory('');
+    setImageBase64(null);
+
+    // ✅ Opzionale: torna alla schermata iniziale
+    router.replace('/');
+  } catch (err) {
+    console.error(err);
+    Alert.alert('Errore', 'Impossibile salvare il viaggio.');
+  }
+};
+
 
   return (
     <KeyboardAvoidingView
