@@ -17,7 +17,7 @@ export default function HomeScreen() {
 
   const fetchTravels = async () => {
     try {
-      const res = await axios.get('http://192.168.0.230:3000/api/trips');
+      const res = await axios.get('http://172.19.241.82:3000/api/trips');
       const data = res.data.map((trip: any) => ({
         id: trip.id,
         title: trip.title,
@@ -55,7 +55,7 @@ export default function HomeScreen() {
           style: 'destructive',
           onPress: async () => {
             try {
-              await axios.delete(`http://192.168.0.230:3000/api/trips/${id}`);
+              await axios.delete(`http://172.19.241.82:3000/api/trips/${id}`);
               fetchTravels(); // aggiorna lista
             } catch (err) {
               console.error('Errore durante eliminazione:', err);
@@ -152,27 +152,7 @@ export default function HomeScreen() {
         }
       />
 
-      <Link
-        href="/add"
-        asChild
-      >
-        <TouchableOpacity
-          style={{
-            position: 'absolute',
-            bottom: 30,
-            right: 20,
-            backgroundColor: '#C19A6B',
-            width: 60,
-            height: 60,
-            borderRadius: 30,
-            alignItems: 'center',
-            justifyContent: 'center',
-            elevation: 4,
-          }}
-        >
-          <Text style={{ color: '#fff', fontSize: 32, lineHeight: 32 }}>＋</Text>
-        </TouchableOpacity>
-      </Link>
+      
     </View>
   );
 }

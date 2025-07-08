@@ -8,7 +8,7 @@ export default function ExploreScreen() {
   const [newCategory, setNewCategory] = useState('');
   const [showInput, setShowInput] = useState(false);
 
-  const API_URL = 'http://192.168.0.230:3000/api/tipology';
+  const API_URL = 'http://172.19.241.82:3000/api/tipology';
 
   useEffect(() => {
     fetchCategories();

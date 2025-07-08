@@ -17,7 +17,7 @@ export default function AddEditScreen() {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await axios.get('http://192.168.0.230:3000/api/tipology');
+        const response = await axios.get('http://172.19.241.82:3000/api/tipology');
         const names = response.data.map((item: { nome: string }) => item.nome);
         setCategories(names);
       } catch (error) {
@@ -49,7 +49,7 @@ export default function AddEditScreen() {
     try {
       const description = `Zona: ${zone}\nCategoria: ${selectedCategory}\n\n${notes}`;
 
-      await axios.post('http://192.168.0.230:3000/api/trips', {
+      await axios.post('http://172.19.241.82:3000/api/trips', {
         title,
         description,
         image_base64: imageBase64 || null,
