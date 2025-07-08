@@ -40,8 +40,6 @@ const fetchLocationSuggestions = async (query: string) => {
         'Accept-Language': 'it',
       },
     });
-    // Debug: stampa la risposta
-    console.log('Suggerimenti Nominatim:', response.data);
     const suggestions = response.data.map((item: any) => item.display_name);
     setLocationSuggestions(suggestions);
   } catch (err) {
