@@ -226,7 +226,7 @@ export default function TripDetail() {
           </View>
           {trip.date && (
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <MaterialCommunityIcons name="calendar" size={18} color={theme.date} style={{ marginRight: 4, marginTop: -15 }} />
+              <MaterialCommunityIcons name="calendar" size={18} color={theme.date} style={{ marginRight: 4, marginTop: 0 }} />
               <Text style={[styles.date, { color: theme.date }]}>{new Date(trip.date).toLocaleDateString()}</Text>
             </View>
           )}
