@@ -1,14 +1,47 @@
 import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, TextInput } from 'react-native';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-
+import { useColorScheme } from '../../hooks/useColorScheme';
 export default function ExploreScreen() {
   const [categories, setCategories] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [newCategory, setNewCategory] = useState('');
   const [showInput, setShowInput] = useState(false);
+  const colorScheme = useColorScheme();
 
-  const API_URL = 'http://10.56.186.198:3000/api/tipology';
+  const colors = {
+    light: {
+      background: '#F8F4E1',
+      card: '#E3D5B8',
+      text: '#4C3D25',
+      title: '#6B4F2C',
+      border: '#D6C7A1',
+      placeholder: '#9E8C6C',
+      button: '#D6C7A1',
+      buttonText: '#4C3D25',
+      addButton: '#BFA77A',
+      inputBg: '#FFF8E6',
+      shadow: '#000',
+      close: 'black',
+    },
+    dark: {
+      background: '#181818',
+      card: '#232323',
+      text: '#FFD580',
+      title: '#FFD580',
+      border: '#444',
+      placeholder: '#aaa',
+      button: '#444',
+      buttonText: '#FFD580',
+      addButton: '#FFD580',
+      inputBg: '#232323',
+      shadow: '#000',
+      close: '#FFD580',
+    },
+  };
+  const theme = colorScheme === 'dark' ? colors.dark : colors.light;
+
+  const API_URL = 'http://192.168.1.138:3000/api/tipology';
 
   useEffect(() => {
     fetchCategories();
@@ -58,15 +91,15 @@ export default function ExploreScreen() {
 
   if (loading) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F8F4E1' }}>
-        <ActivityIndicator size="large" color="#BFA77A" />
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: theme.background }}>
+        <ActivityIndicator size="large" color={theme.addButton} />
       </View>
     );
   }
 
   return (
-    <View style={{ flex: 1, padding: 16, backgroundColor: '#F8F4E1' }}>
-      <Text style={{ fontSize: 28, fontWeight: 'bold', textAlign: 'center', color: '#6B4F2C', marginBottom: 20 }}>
+    <View style={{ flex: 1, padding: 16, backgroundColor: theme.background }}>
+      <Text style={{ fontSize: 28, fontWeight: 'bold', textAlign: 'center', color: theme.title, marginBottom: 20 }}>
         🧭 Explore Categories
       </Text>
 
@@ -78,13 +111,13 @@ export default function ExploreScreen() {
         renderItem={({ item }) => (
           <View
             style={{
-              backgroundColor: '#E3D5B8',
+              backgroundColor: theme.card,
               paddingVertical: 20,
               borderRadius: 16,
               width: '48%',
               alignItems: 'center',
               justifyContent: 'center',
-              shadowColor: '#000',
+              shadowColor: theme.shadow,
               shadowOffset: { width: 0, height: 2 },
               shadowOpacity: 0.1,
               shadowRadius: 4,
@@ -92,7 +125,7 @@ export default function ExploreScreen() {
               position: 'relative',
             }}
           >
-            <Text style={{ fontSize: 18, fontWeight: '600', color: '#4C3D25' }}>{item}</Text>
+            <Text style={{ fontSize: 18, fontWeight: '600', color: theme.text }}>{item}</Text>
 
             <TouchableOpacity
               onPress={() => deleteCategory(item)}
@@ -100,7 +133,6 @@ export default function ExploreScreen() {
                 position: 'absolute',
                 top: 6,
                 right: 10,
-                backgroundColor: '#w',
                 borderRadius: 12,
                 padding: 4,
                 width: 24,
@@ -109,7 +141,7 @@ export default function ExploreScreen() {
                 justifyContent: 'center',
               }}
             >
-              <Text style={{ color: 'black', fontWeight: 'bold' }}>×</Text>
+              <Text style={{ color: theme.close, fontWeight: 'bold' }}>×</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -121,21 +153,21 @@ export default function ExploreScreen() {
             value={newCategory}
             onChangeText={setNewCategory}
             placeholder="Enter new category"
-            placeholderTextColor="#9E8C6C"
+            placeholderTextColor={theme.placeholder}
             style={{
-              backgroundColor: '#FFF8E6',
+              backgroundColor: theme.inputBg,
               padding: 14,
               borderRadius: 12,
               marginBottom: 10,
               borderWidth: 1,
-              borderColor: '#D6C7A1',
-              color: '#4C3D25',
+              borderColor: theme.border,
+              color: theme.text,
               fontSize: 16,
             }}
           />
           <TouchableOpacity
             style={{
-              backgroundColor: '#BFA77A',
+              backgroundColor: theme.addButton,
               padding: 14,
               borderRadius: 12,
               alignItems: 'center',
@@ -151,14 +183,14 @@ export default function ExploreScreen() {
         style={{
           marginTop: 24,
           marginBottom: 90,
-          backgroundColor: '#D6C7A1',
+          backgroundColor: theme.button,
           padding: 16,
           borderRadius: 12,
           alignItems: 'center',
         }}
         onPress={() => setShowInput(!showInput)}
       >
-        <Text style={{ color: '#4C3D25', fontSize: 16, fontWeight: 'bold' }}>
+        <Text style={{ color: theme.buttonText, fontSize: 16, fontWeight: 'bold' }}>
           ➕ {showInput ? 'Cancel' : 'Add new category'}
         </Text>
       </TouchableOpacity>

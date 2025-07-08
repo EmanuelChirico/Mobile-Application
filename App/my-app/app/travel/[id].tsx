@@ -31,7 +31,7 @@ export default function TripDetail() {
       return;
     }
 
-    axios.get(`http://10.56.186.198:3000/api/trips/${id}`)
+    axios.get(`http://192.168.1.138:3000/api/trips/${id}`)
       .then(res => {
         setTrip(res.data);
         setIsFavorite(res.data.isFavorite || false);
@@ -47,7 +47,7 @@ const toggleFavorite = async () => {
   setIsFavorite(newValue); // Aggiorna localmente
 
   try {
-    await axios.patch(`http://10.56.186.198:3000/api/trips/${trip?.id}/favorite`, {
+    await axios.patch(`http://192.168.1.138:3000/api/trips/${trip?.id}/favorite`, {
       isfavorite: newValue, // <-- deve combaciare col nome nel DB
     });
   } catch (err: any) {

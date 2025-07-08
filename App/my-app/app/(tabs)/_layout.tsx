@@ -1,18 +1,62 @@
 import { Tabs } from 'expo-router';
 import { Platform, StyleSheet } from 'react-native';
 import { Ionicons, MaterialCommunityIcons, Feather, AntDesign } from '@expo/vector-icons';
+import { useColorScheme } from '../../hooks/useColorScheme';
 
 export default function Layout() {
+  const colorScheme = useColorScheme();
+  const colors = {
+    light: {
+      headerBg: '#fdf6e3',
+      headerTitle: '#3E3E3E',
+      tabBarBg: '#ffffff',
+      tabBarActive: '#FFB300',
+      tabBarInactive: '#B0AFAF',
+      shadow: '#000',
+    },
+    dark: {
+      headerBg: '#232323',
+      headerTitle: '#FFD580',
+      tabBarBg: '#181818',
+      tabBarActive: '#FFD580',
+      tabBarInactive: '#888888',
+      shadow: '#000',
+    },
+  };
+  const theme = colorScheme === 'dark' ? colors.dark : colors.light;
+
   return (
     <Tabs
       screenOptions={{
-        headerStyle: styles.header,
-        headerTitleStyle: styles.headerTitle,
+        headerStyle: [{
+          backgroundColor: theme.headerBg,
+          shadowColor: 'transparent',
+          elevation: 0,
+        }],
+        headerTitleStyle: [{
+          fontWeight: '600',
+          fontSize: 18,
+          color: theme.headerTitle,
+        }],
         headerTitleAlign: 'center',
-        tabBarStyle: styles.tabBar,
+        tabBarStyle: [{
+          position: 'absolute',
+          bottom: Platform.OS === 'ios' ? 30 : 16,
+          left: 20,
+          right: 20,
+          height: 64,
+          borderRadius: 32,
+          backgroundColor: theme.tabBarBg,
+          shadowColor: theme.shadow,
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.08,
+          shadowRadius: 12,
+          elevation: 12,
+          paddingHorizontal: 16,
+        }],
         tabBarShowLabel: true,
-        tabBarActiveTintColor: '#FFB300',
-        tabBarInactiveTintColor: '#B0AFAF',
+        tabBarActiveTintColor: theme.tabBarActive,
+        tabBarInactiveTintColor: theme.tabBarInactive,
         tabBarLabelStyle: styles.tabLabel,
       }}
     >
@@ -49,31 +93,6 @@ export default function Layout() {
 }
 
 const styles = StyleSheet.create({
-  header: {
-    backgroundColor: '#fdf6e3',
-    shadowColor: 'transparent',
-    elevation: 0,
-  },
-  headerTitle: {
-    fontWeight: '600',
-    fontSize: 18,
-    color: '#3E3E3E',
-  },
-  tabBar: {
-    position: 'absolute',
-    bottom: Platform.OS === 'ios' ? 30 : 16,
-    left: 20,
-    right: 20,
-    height: 64,
-    borderRadius: 32,
-    backgroundColor: '#ffffff',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 12,
-    elevation: 12,
-    paddingHorizontal: 16,
-  },
   tabLabel: {
     fontSize: 12,
     fontWeight: '600',
