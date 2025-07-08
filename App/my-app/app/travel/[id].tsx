@@ -27,6 +27,7 @@ export default function TripDetail() {
   const [loading, setLoading] = useState(true);
   const [isFavorite, setIsFavorite] = useState(false);
   const [aspectRatio, setAspectRatio] = useState<number | null>(null);
+  const [repeat, setToRepeat] = useState<boolean>(false);
   const colorScheme = useColorScheme();
   const scrollY = useState(new Animated.Value(0))[0];
 
@@ -75,6 +76,7 @@ export default function TripDetail() {
         setIsFavorite(
           res.data.isFavorite ?? res.data.isfavorite ?? res.data.favorite ?? false
         );
+        setToRepeat(!!(res.data.repeat ?? res.data.repeat ?? res.data.repeat ?? false));
         // Calcola aspect ratio dell'immagine se presente
         if (res.data.image) {
           // Per immagini base64, serve specificare width/height manualmente
@@ -174,14 +176,38 @@ export default function TripDetail() {
         {/* ...existing code... */}
         <View style={styles.headerRow}>
           <Text style={[styles.title, { color: theme.title }]}>{trip.title}</Text>
-          <TouchableOpacity onPress={toggleFavorite}>
-            <MaterialCommunityIcons
-              name={isFavorite ? 'heart' : 'heart-outline'}
-              size={28}
-              color={isFavorite ? '#FF4B4B' : theme.title}
-              style={styles.favorite}
-            />
-          </TouchableOpacity>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <TouchableOpacity onPress={toggleFavorite}>
+              <MaterialCommunityIcons
+                name={isFavorite ? 'heart' : 'heart-outline'}
+                size={28}
+                color={isFavorite ? '#FF4B4B' : theme.title}
+                style={styles.favorite}
+              />
+            </TouchableOpacity>
+            <View style={{ width: 8 }} />
+            <TouchableOpacity
+              onPress={async () => {
+                const newValue = !repeat;
+                setToRepeat(newValue);
+                try {
+                  await axios.patch(`http://192.168.1.138:3000/api/trips/${trip?.id}/repeat`, {
+                    repeat: newValue,
+                  });
+                } catch (err) {
+                  setToRepeat(!newValue);
+                  Alert.alert('Errore', 'Impossibile aggiornare lo stato "da ripetere".');
+                }
+              }}
+            >
+              <MaterialCommunityIcons
+                name="refresh"
+                size={28}
+                color={repeat ? '#2196F3' : theme.location}
+                style={{ marginLeft: 0, marginRight: 2, opacity: 0.85 }}
+              />
+            </TouchableOpacity>
+          </View>
         </View>
 
         {trip.category && (
