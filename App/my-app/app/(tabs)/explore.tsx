@@ -98,8 +98,7 @@ export default function ExploreScreen() {
       await axios.delete(`${API_URL}/${encodeURIComponent(nameToDelete)}`);
       setCategories(prev => prev.filter(name => name !== nameToDelete));
     } catch (err) {
-      console.error('Errore durante eliminazione:', err);
-      alert('❌ Errore durante l\'eliminazione della categoria');
+      alert("Can't delete a category associated to a trip!");
     }
   };
 

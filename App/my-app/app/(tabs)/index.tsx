@@ -131,6 +131,7 @@ export default function HomeScreen() {
 
       <FlatList
         data={filteredTravels}
+        showsVerticalScrollIndicator={false}
         keyExtractor={(item) => item.id.toString()}
         contentContainerStyle={{ paddingBottom: 100 }}
         renderItem={({ item }) => (

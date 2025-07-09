@@ -17,8 +17,19 @@ export default function RootLayout() {
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="travel/[id]" options={{ title: 'Dettagli Viaggio' }} />
+        
+        <Stack.Screen
+          name="(tabs)"
+          options={{
+            headerShown: false,
+            title: 'Explore', 
+          }}
+        />
+        <Stack.Screen
+          name="travel/[id]"
+          options={{ title: 'Dettagli del tuo viaggio' }}
+        />
+
         <Stack.Screen name="+not-found" />
       </Stack>
       <StatusBar style="auto" />

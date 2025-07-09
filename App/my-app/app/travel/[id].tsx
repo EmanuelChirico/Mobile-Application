@@ -188,7 +188,7 @@ export default function TripDetail() {
       )}
 
       <View style={[styles.content, { zIndex: 2, backgroundColor: theme.background, marginTop: -20, borderTopLeftRadius: 20, borderTopRightRadius: 20, paddingTop: 30, minHeight: 100 }]}> 
-        {/* ...existing code... */}
+
         <View style={styles.headerRow}>
           <Text style={[styles.title, { color: theme.title }]}>{trip.title}</Text>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -213,14 +213,14 @@ export default function TripDetail() {
           </View>
         </View>
 
-        {/* Chip categoria visivo */}
+
         {trip.category && (
           <View style={[styles.chip, { backgroundColor: theme.chip }]}>
             <Text style={[styles.chipText, { color: theme.chipText }]}>{trip.category}</Text>
           </View>
         )}
 
-        {/* ...existing code... */}
+
         <View style={{ marginBottom: 16 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 2 }}>
             <MaterialCommunityIcons name="map-marker" size={18} color={theme.location} style={{ marginRight: 4 }} />
@@ -234,7 +234,7 @@ export default function TripDetail() {
           )}
         </View>
 
-        {/* 📝 Descrizione */}
+
         <View style={styles.section}>
           <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
             <MaterialCommunityIcons name="note-text-outline" size={18} color={theme.sectionTitle} style={{ marginRight: 6 }} />

@@ -19,7 +19,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { API_BASE_URL} from "../../constants/constants";
 
 function AddScreen() {
-  // Focus state per i campi
+
   const [isTitleFocused, setIsTitleFocused] = useState(false);
   const [isZoneFocused, setIsZoneFocused] = useState(false);
   const [isNotesFocused, setIsNotesFocused] = useState(false);
@@ -97,7 +97,7 @@ const fetchLocationSuggestions = async (query: string) => {
       imageButtonText: '#232323',
       noImage: '#aaa',
     },
-  // RIMUOVI questa duplicazione errata dei focus state
+
   };
   const theme = colorScheme === 'dark' ? colors.dark : colors.light;
 
@@ -166,7 +166,13 @@ const fetchLocationSuggestions = async (query: string) => {
       keyboardVerticalOffset={80}
     >
       <ScrollView
-        contentContainerStyle={{ padding: 20, backgroundColor: theme.background, paddingBottom: 80 }}
+        contentContainerStyle={{
+        flexGrow: 1, 
+        padding: 20,
+        backgroundColor: theme.background,
+        paddingBottom: 120,
+      }}
+
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
@@ -219,7 +225,7 @@ const fetchLocationSuggestions = async (query: string) => {
     <View style={{ marginTop: 8, backgroundColor: theme.card, borderRadius: 8 }}>
       {locationSuggestions.map((suggestion, index) => (
     <Pressable
-      key={`${suggestion}-${index}`} // 👈 chiave univoca
+      key={`${suggestion}-${index}`} 
       onPress={() => {
         setZone(suggestion);
         setLocationSuggestions([]);
