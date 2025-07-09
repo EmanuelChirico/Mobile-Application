@@ -6,7 +6,8 @@ import {
     ActivityIndicator,
     TextInput,
     KeyboardAvoidingView,
-    Platform
+    Platform,
+    Alert
 } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useEffect, useState } from 'react';
@@ -86,9 +87,9 @@ export default function ExploreScreen() {
       setShowInput(false);
     } catch (err: any) {
       if (axios.isAxiosError(err) && err.response?.status === 409) {
-        alert('⚠️ Categoria già esistente');
+        Alert.alert('⚠️ Categoria già esistente');
       } else {
-        console.error('Errore durante aggiunta:', err.message);
+        Alert.alert('Error!\n Can not create an existing category!');
       }
     }
   };
@@ -98,7 +99,8 @@ export default function ExploreScreen() {
       await axios.delete(`${API_URL}/${encodeURIComponent(nameToDelete)}`);
       setCategories(prev => prev.filter(name => name !== nameToDelete));
     } catch (err) {
-      alert("Can't delete a category associated to a trip!");
+      Alert.alert("Error!\nCan't delete a category associated to a trip!");
+      return;
     }
   };
 
@@ -210,7 +212,7 @@ export default function ExploreScreen() {
             }}
             onPress={() => setShowInput(!showInput)}
           >
-            {/* Use MaterialCommunityIcons for add/cancel icon for consistency */}
+
             {showInput ? (
               <>
                 <MaterialCommunityIcons name="close-circle-outline" size={22} color={theme.buttonText} style={{ marginRight: 8 }} />
