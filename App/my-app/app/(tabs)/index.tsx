@@ -4,12 +4,15 @@ import { useCallback, useEffect, useState } from 'react';
 import axios from 'axios';
 import { useColorScheme } from '../../hooks/useColorScheme';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { API_BASE_URL} from "../../constants/constants";
+
 
 type Trip = {
   id: number;
   title: string;
   location: string;
   image?: string;
+  isFavorite?: boolean;
 };
 
 export default function HomeScreen() {
@@ -46,12 +49,13 @@ export default function HomeScreen() {
 
   const fetchTravels = async () => {
     try {
-      const res = await axios.get('http://192.168.1.138:3000/api/trips');
+      const res = await axios.get(`${API_BASE_URL}/api/trips`);
       const data = res.data.map((trip: any) => ({
         id: trip.id,
         title: trip.title,
         location: trip.description || 'Unknown location',
         image: trip.image || null,
+        isFavorite: trip.isFavorite,
       }));
       setTravels(data);
     } catch (err) {
@@ -84,7 +88,7 @@ export default function HomeScreen() {
           style: 'destructive',
           onPress: async () => {
             try {
-              await axios.delete(`http://192.168.1.138:3000/api/trips/${id}`);
+              await axios.delete(`${API_BASE_URL}/api/trips/${id}`);
               fetchTravels();
             } catch (err) {
               console.error('Errore durante eliminazione:', err);
@@ -131,7 +135,7 @@ export default function HomeScreen() {
         contentContainerStyle={{ paddingBottom: 100 }}
         renderItem={({ item }) => (
           <View style={{
-            backgroundColor: theme.card,
+            backgroundColor: item.isFavorite ? '#fd7266' : theme.card,
             marginBottom: 16,
             borderRadius: 16,
             padding: 12,

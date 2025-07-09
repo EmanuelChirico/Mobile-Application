@@ -20,6 +20,7 @@ app.get('/api/trips', async (req, res) => {
     const trips = result.rows.map(trip => ({
       ...trip,
       image: trip.image ? trip.image.toString('base64') : null,
+      isFavorite: trip.isfavorite,
     }));
 
     res.json(trips);
@@ -68,6 +69,7 @@ app.get('/api/trips/:id', async (req, res) => {
     res.json({
       ...trip,
       image: trip.image ? trip.image.toString('base64') : null,
+      isFavorite: trip.isfavorite,
     });
   } catch (err) {
     console.error('Errore nel recupero del viaggio:', err);

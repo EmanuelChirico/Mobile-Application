@@ -1,10 +1,22 @@
-import { View, Text, TextInput, Pressable, ScrollView, Alert, Image, KeyboardAvoidingView, Platform } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  Pressable,
+  ScrollView,
+  Alert,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  TouchableOpacity
+} from 'react-native';
 import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { useRouter } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import { useColorScheme } from '../../hooks/useColorScheme';
 import { useFocusEffect } from '@react-navigation/native';
+import { API_BASE_URL} from "../../constants/constants";
 
 function AddScreen() {
   // Focus state per i campi
@@ -93,7 +105,7 @@ const fetchLocationSuggestions = async (query: string) => {
     useCallback(() => {
       const fetchCategories = async () => {
         try {
-          const response = await axios.get('http://192.168.1.138:3000/api/tipology');
+          const response = await axios.get(`${API_BASE_URL}/api/tipology`);
           const names = response.data.map((item: { nome: string }) => item.nome);
           setCategories(names);
         } catch (error) {
@@ -124,7 +136,7 @@ const fetchLocationSuggestions = async (query: string) => {
 
     try {
       const description = notes; 
-      await axios.post('http://192.168.1.138:3000/api/trips', {
+      await axios.post(`${API_BASE_URL}/api/trips`, {
         title,
         description,
         image_base64: imageBase64 || null,
@@ -230,7 +242,7 @@ const fetchLocationSuggestions = async (query: string) => {
           {categories.map((cat) => (
             <Pressable
               key={cat}
-              onPress={() => setSelectedCategory(cat)}
+              onPress={() => setSelectedCategory(selectedCategory === cat ? '' : cat)}
               style={{
                 backgroundColor: selectedCategory === cat ? theme.categorySelected : theme.categoryBg,
                 paddingVertical: 8,
@@ -255,12 +267,31 @@ const fetchLocationSuggestions = async (query: string) => {
 
         <Text style={{ fontSize: 18, fontWeight: '600', marginBottom: 6, marginTop: 16, color: theme.label }}>Photo</Text>
         {imageBase64 ? (
-          <Image
-            source={{ uri: `data:image/jpeg;base64,${imageBase64}` }}
-            style={{ width: '100%', height: 200, borderRadius: 12, marginBottom: 12 }}
-          />
+            <View style={{ position: 'relative', width: '100%', height: 200, marginBottom: 12 }}>
+              <Image
+                  source={{ uri: `data:image/jpeg;base64,${imageBase64}` }}
+                  style={{ width: '100%', height: 200, borderRadius: 12 }}
+              />
+              <TouchableOpacity
+                  onPress={() => setImageBase64(null)}
+                  style={{
+                    position: 'absolute',
+                    top: 8,
+                    right: 8,
+                    backgroundColor: 'rgba(0,0,0,0.6)',
+                    borderRadius: 16,
+                    width: 32,
+                    height: 32,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    zIndex: 2,
+                  }}
+              >
+                <Text style={{ color: '#fff', fontSize: 20, fontWeight: 'bold' }}>×</Text>
+              </TouchableOpacity>
+            </View>
         ) : (
-          <Text style={{ color: theme.noImage, marginBottom: 12 }}>No image selected</Text>
+            <Text style={{ color: theme.noImage, marginBottom: 12 }}>No image selected</Text>
         )}
         <Pressable style={{ backgroundColor: theme.imageButton, padding: 12, borderRadius: 20, alignItems: 'center' }} onPress={pickImage}>
           <Text style={{ color: theme.imageButtonText, fontWeight: '600', fontSize: 16 }}>Choose from Gallery</Text>

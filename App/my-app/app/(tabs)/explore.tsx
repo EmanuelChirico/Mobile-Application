@@ -1,14 +1,27 @@
-import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, TextInput } from 'react-native';
+import {
+    View,
+    Text,
+    FlatList,
+    TouchableOpacity,
+    ActivityIndicator,
+    TextInput,
+    KeyboardAvoidingView,
+    Platform
+} from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useColorScheme } from '../../hooks/useColorScheme';
+import { API_BASE_URL} from "../../constants/constants";
+
+
 export default function ExploreScreen() {
   const [categories, setCategories] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [newCategory, setNewCategory] = useState('');
   const [showInput, setShowInput] = useState(false);
   const colorScheme = useColorScheme();
+
 
   const colors = {
     light: {
@@ -42,7 +55,7 @@ export default function ExploreScreen() {
   };
   const theme = colorScheme === 'dark' ? colors.dark : colors.light;
 
-  const API_URL = 'http://192.168.1.138:3000/api/tipology';
+  const API_URL = `${API_BASE_URL}/api/tipology`;
 
   useEffect(() => {
     fetchCategories();
@@ -99,113 +112,119 @@ export default function ExploreScreen() {
   }
 
   return (
-    <View style={{ flex: 1, padding: 16, backgroundColor: theme.background }}>
-      <Text style={{ fontSize: 28, fontWeight: 'bold', textAlign: 'center', color: theme.title, marginBottom: 20 }}>
-       Explore Categories
-      </Text>
+      <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'padding'}
+          style={{ flex: 1 }}
+          keyboardVerticalOffset={80}
+      >
+          <View style={{ flex: 1, padding: 16, backgroundColor: theme.background }}>
+          <Text style={{ fontSize: 28, fontWeight: 'bold', textAlign: 'center', color: theme.title, marginBottom: 20 }}>
+           Explore Categories
+          </Text>
 
-      <FlatList
-        data={categories}
-        keyExtractor={(item) => item}
-        numColumns={2}
-        columnWrapperStyle={{ justifyContent: 'space-between', marginBottom: 16 }}
-        renderItem={({ item }) => (
-          <View
-            style={{
-              backgroundColor: theme.card,
-              paddingVertical: 20,
-              borderRadius: 16,
-              width: '48%',
-              alignItems: 'center',
-              justifyContent: 'center',
-              shadowColor: theme.shadow,
-              shadowOffset: { width: 0, height: 2 },
-              shadowOpacity: 0.1,
-              shadowRadius: 4,
-              elevation: 3,
-              position: 'relative',
-            }}
-          >
-            <Text style={{ fontSize: 18, fontWeight: '600', color: theme.text }}>{item}</Text>
+          <FlatList
+            data={categories}
+            keyExtractor={(item) => item}
+            numColumns={2}
+            columnWrapperStyle={{ justifyContent: 'space-between', marginBottom: 16 }}
+            renderItem={({ item }) => (
+              <View
+                style={{
+                  backgroundColor: theme.card,
+                  paddingVertical: 20,
+                  borderRadius: 16,
+                  width: '48%',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  shadowColor: theme.shadow,
+                  shadowOffset: { width: 0, height: 2 },
+                  shadowOpacity: 0.1,
+                  shadowRadius: 4,
+                  elevation: 3,
+                  position: 'relative',
+                }}
+              >
+                <Text style={{ fontSize: 18, fontWeight: '600', color: theme.text }}>{item}</Text>
 
-            <TouchableOpacity
-              onPress={() => deleteCategory(item)}
-              style={{
-                position: 'absolute',
-                top: 6,
-                right: 10,
-                borderRadius: 12,
-                padding: 4,
-                width: 24,
-                height:24,
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <Text style={{ color: theme.close, fontWeight: 'bold' }}>×</Text>
-            </TouchableOpacity>
-          </View>
-        )}
-      />
-
-      {showInput && (
-        <View style={{ marginTop: 16 }}>
-          <TextInput
-            value={newCategory}
-            onChangeText={setNewCategory}
-            placeholder="Enter new category"
-            placeholderTextColor={theme.placeholder}
-            style={{
-              backgroundColor: theme.inputBg,
-              padding: 14,
-              borderRadius: 12,
-              marginBottom: 10,
-              borderWidth: 1,
-              borderColor: theme.border,
-              color: theme.text,
-              fontSize: 16,
-            }}
+                <TouchableOpacity
+                  onPress={() => deleteCategory(item)}
+                  style={{
+                    position: 'absolute',
+                    top: 6,
+                    right: 10,
+                    borderRadius: 12,
+                    padding: 4,
+                    width: 24,
+                    height:24,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <Text style={{ color: theme.close, fontWeight: 'bold' }}>×</Text>
+                </TouchableOpacity>
+              </View>
+            )}
           />
+
+          {showInput && (
+            <View style={{ marginTop: 16 }}>
+              <TextInput
+                value={newCategory}
+                onChangeText={setNewCategory}
+                placeholder="Enter new category"
+                placeholderTextColor={theme.placeholder}
+                style={{
+                  backgroundColor: theme.inputBg,
+                  padding: 14,
+                  borderRadius: 12,
+                  marginBottom: 10,
+                  borderWidth: 1,
+                  borderColor: theme.border,
+                  color: theme.text,
+                  fontSize: 16,
+                }}
+              />
+              <TouchableOpacity
+                style={{
+                  backgroundColor: theme.addButton,
+                  padding: 14,
+                  borderRadius: 12,
+                  alignItems: 'center',
+                }}
+                onPress={addCategory}
+              >
+                <Text style={{ color: '#fff', fontWeight: 'bold' }}>✅ Add</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+
           <TouchableOpacity
             style={{
-              backgroundColor: theme.addButton,
-              padding: 14,
+              marginTop: 24,
+              marginBottom: 90,
+              backgroundColor: theme.button,
+              padding: 16,
               borderRadius: 12,
               alignItems: 'center',
+              flexDirection: 'row',
+              justifyContent: 'center',
             }}
-            onPress={addCategory}
+            onPress={() => setShowInput(!showInput)}
           >
-            <Text style={{ color: '#fff', fontWeight: 'bold' }}>✅ Add</Text>
+            {/* Use MaterialCommunityIcons for add/cancel icon for consistency */}
+            {showInput ? (
+              <>
+                <MaterialCommunityIcons name="close-circle-outline" size={22} color={theme.buttonText} style={{ marginRight: 8 }} />
+                <Text style={{ color: theme.buttonText, fontSize: 16, fontWeight: 'bold' }}>Cancel</Text>
+              </>
+            ) : (
+              <>
+                <MaterialCommunityIcons name="plus-circle-outline" size={22} color={theme.buttonText} style={{ marginRight: 8 }} />
+                <Text style={{ color: theme.buttonText, fontSize: 16, fontWeight: 'bold' }}>Add new category</Text>
+              </>
+            )}
           </TouchableOpacity>
         </View>
-      )}
-
-      <TouchableOpacity
-        style={{
-          marginTop: 24,
-          marginBottom: 90,
-          backgroundColor: theme.button,
-          padding: 16,
-          borderRadius: 12,
-          alignItems: 'center',
-          flexDirection: 'row',
-          justifyContent: 'center',
-        }}
-        onPress={() => setShowInput(!showInput)}
-      >
-        {/* Use MaterialCommunityIcons for add/cancel icon for consistency */}
-        {showInput ? (
-          <>
-            <MaterialCommunityIcons name="close-circle-outline" size={22} color={theme.buttonText} style={{ marginRight: 8 }} />
-            <Text style={{ color: theme.buttonText, fontSize: 16, fontWeight: 'bold' }}>Cancel</Text>
-          </>
-        ) : (
-          <>
-            <MaterialCommunityIcons name="plus-circle-outline" size={22} color={theme.buttonText} style={{ marginRight: 8 }} />
-            <Text style={{ color: theme.buttonText, fontSize: 16, fontWeight: 'bold' }}>Add new category</Text>
-          </>
-        )}
-      </TouchableOpacity>
-    </View>
+      </KeyboardAvoidingView>
   );
 }

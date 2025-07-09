@@ -9,6 +9,8 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useLocalSearchParams } from 'expo-router';
 import axios from 'axios';
 import { useColorScheme } from '../../hooks/useColorScheme';
+import { API_BASE_URL} from "../../constants/constants";
+
 
 type Trip = {
   id: number;
@@ -70,7 +72,7 @@ export default function TripDetail() {
       return;
     }
 
-    axios.get(`http://192.168.1.138:3000/api/trips/${id}`)
+    axios.get(`${API_BASE_URL}/api/trips/${id}`)
       .then(res => {
         setTrip(res.data);
         setIsFavorite(
@@ -102,7 +104,7 @@ export default function TripDetail() {
     setIsFavorite(newValue);
 
     try {
-      await axios.patch(`http://192.168.1.138:3000/api/trips/${trip?.id}/favorite`, {
+      await axios.patch(`${API_BASE_URL}/api/trips/${trip?.id}/favorite`, {
         isfavorite: newValue,
       });
     } catch (err: any) {
@@ -135,7 +137,7 @@ export default function TripDetail() {
     const newValue = !ripeti;
     setRipeti(newValue);
     try {
-      await axios.patch(`http://192.168.1.138:3000/api/trips/${trip?.id}/repeat`, {
+      await axios.patch(`${API_BASE_URL}/api/trips/${trip?.id}/repeat`, {
         ripeti: newValue,
       });
     } catch (err) {
