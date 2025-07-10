@@ -45,7 +45,7 @@ my-app/
 
 myapp-backend/
 ├── node_modules/
-├── .env
+├── .env                    # configuration db file
 ├── index.js                # Backend entry point
 ├── package-lock.json
 └── package.json
