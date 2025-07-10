@@ -1,0 +1,321 @@
+import {
+    View,
+    Text,
+    ScrollView,
+    Alert,
+    Image,
+    Pressable,
+    KeyboardAvoidingView,
+    Platform,
+    TouchableOpacity,
+    ActivityIndicator,
+} from 'react-native';
+import { useState, useEffect } from 'react';
+import axios from 'axios';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { API_BASE_URL } from '../../constants/constants';
+import { useColorScheme } from '../../hooks/useColorScheme';
+
+import LabeledInput from '@/components/LabeledInput';
+import CategorySelector from '@/components/CategorySelector';
+import * as ImagePicker from "expo-image-picker";
+
+export default function EditScreen() {
+
+    const { id } = useLocalSearchParams<{ id: string }>();
+    const router = useRouter();
+    const colorScheme = useColorScheme();
+
+    const themeColors = {
+        light: {
+            background: '#FAF7ED',
+            card: '#fff',
+            text: '#2C2C2C',
+            label: '#444',
+            border: '#ccc',
+            borderActive: '#FFD600',
+            placeholder: '#999',
+            button: '#6C4F3D',
+            buttonText: '#fff',
+            categoryBg: '#eee',
+            categorySelected: '#C19A6B',
+            categoryText: '#555',
+            categoryTextSelected: '#fff',
+            imageButton: '#C19A6B',
+            imageButtonText: '#fff',
+            noImage: '#777',
+        },
+        dark: {
+            background: '#181818',
+            card: '#232323',
+            text: '#FFD580',
+            label: '#FFD580',
+            border: '#444',
+            borderActive: '#FFD600',
+            placeholder: '#aaa',
+            button: '#FFD580',
+            buttonText: '#232323',
+            categoryBg: '#232323',
+            categorySelected: '#FFD580',
+            categoryText: '#FFD580',
+            categoryTextSelected: '#232323',
+            imageButton: '#FFD580',
+            imageButtonText: '#232323',
+            noImage: '#aaa',
+        },
+    };
+    const theme = colorScheme === 'dark' ? themeColors.dark : themeColors.light;
+
+    const [title, setTitle] = useState('');
+    const [zone, setZone] = useState('');
+    const [notes, setNotes] = useState('');
+    const [selectedCategory, setSelectedCategory] = useState('');
+    const [imageBase64, setImageBase64] = useState<string | null>(null);
+    const [categories, setCategories] = useState<string[]>([]);
+    const [locationSuggestions, setLocationSuggestions] = useState<string[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    const [focused, setFocused] = useState({
+        title: false,
+        zone: false,
+        notes: false,
+    });
+
+    useEffect(() => {
+        if (id) {
+            axios.get(`${API_BASE_URL}/api/trips/${id}`).then(res => {
+                setTitle(res.data.title || '');
+                setNotes(res.data.description || '');
+                setSelectedCategory(res.data.category || '');
+                setZone(res.data.location || '');
+                setImageBase64(res.data.image || null);
+            }).finally(() => setLoading(false));
+        }
+        // Carica categorie
+        axios.get(`${API_BASE_URL}/api/tipology`).then(response => {
+            const names = response.data.map((item: { nome: string }) => item.nome);
+            setCategories(names);
+        });
+    }, [id]);
+
+    const fetchLocationSuggestions = async (query: string) => {
+        if (!query || query.length < 3) {
+            setLocationSuggestions([]);
+            return;
+        }
+        try {
+            const response = await axios.get('https://nominatim.openstreetmap.org/search', {
+                params: {
+                    q: query,
+                    format: 'json',
+                    addressdetails: 1,
+                    limit: 5,
+                },
+                headers: {
+                    'User-Agent': 'MobileApp/1.0 (email@email.com)',
+                    'Accept-Language': 'it',
+                },
+            });
+            const suggestions = response.data.map((item: any) => item.display_name);
+            setLocationSuggestions(suggestions);
+        } catch (err) {
+            setLocationSuggestions([]);
+        }
+    };
+
+    const pickImage = async () => {
+        const result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            base64: true,
+            quality: 0.7,
+        });
+
+        if (!result.canceled && result.assets[0].base64) {
+            setImageBase64(result.assets[0].base64);
+        }
+    };
+
+    async function updateTrip() {
+        if (!title.trim()) {
+            Alert.alert('Errore', 'Il titolo è obbligatorio');
+            return;
+        }
+        try {
+            await axios.patch(`${API_BASE_URL}/api/trips/${id}`, {
+                title,
+                description: notes,
+                image_base64: imageBase64 || null,
+                category: selectedCategory,
+                location: zone,
+            });
+            Alert.alert('Successo', 'Viaggio aggiornato!');
+            router.back();
+        } catch {
+            Alert.alert('Errore', 'Errore durante l\'aggiornamento');
+        }
+    }
+
+    if (loading) {
+        return (
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: theme.background }}>
+                <ActivityIndicator size="large" color={theme.button} />
+                <Text style={{ color: theme.text, marginTop: 10 }}>Caricamento...</Text>
+            </View>
+        );
+    }
+
+    return (
+        <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : 'padding'}
+            style={{ flex: 1 }}
+            keyboardVerticalOffset={80}
+        >
+            <ScrollView
+                contentContainerStyle={{
+                    flexGrow: 1,
+                    padding: 20,
+                    backgroundColor: theme.background,
+                    paddingBottom: 120,
+                }}
+                showsVerticalScrollIndicator={false}
+                keyboardShouldPersistTaps="handled"
+            >
+                <Text style={{
+                    fontSize: 28,
+                    fontWeight: 'bold',
+                    textAlign: 'center',
+                    marginBottom: 24,
+                    color: theme.text,
+                }}>
+                    Let's update
+                </Text>
+
+                <LabeledInput
+                    label="Trip Title"
+                    value={title}
+                    onChangeText={setTitle}
+                    placeholder="e.g. Weekend in Rome"
+                    theme={theme}
+                    focused={focused.title}
+                    onFocus={() => setFocused(prev => ({ ...prev, title: true }))}
+                    onBlur={() => setFocused(prev => ({ ...prev, title: false }))}
+                />
+
+                <LabeledInput
+                    label="Location"
+                    value={zone}
+                    onChangeText={(text) => {
+                        setZone(text);
+                        fetchLocationSuggestions(text);
+                    }}
+                    placeholder="e.g. Rome, Italy"
+                    theme={theme}
+                    focused={focused.zone}
+                    onFocus={() => setFocused(prev => ({ ...prev, zone: true }))}
+                    onBlur={() => setFocused(prev => ({ ...prev, zone: false }))}
+                />
+
+                {locationSuggestions.length > 0 && (
+                    <View style={{ marginTop: 8, backgroundColor: theme.card, borderRadius: 8 }}>
+                        {locationSuggestions.map((suggestion, index) => (
+                            <Pressable
+                                key={`${suggestion}-${index}`}
+                                onPress={() => {
+                                    setZone(suggestion);
+                                    setLocationSuggestions([]);
+                                }}
+                                style={{
+                                    paddingVertical: 10,
+                                    paddingHorizontal: 12,
+                                    borderBottomWidth: 1,
+                                    borderBottomColor: theme.border,
+                                }}
+                            >
+                                <Text style={{ color: theme.text }}>{suggestion}</Text>
+                            </Pressable>
+                        ))}
+                    </View>
+                )}
+
+                <Text style={{ fontSize: 18, fontWeight: '600', marginBottom: 6, marginTop: 16, color: theme.label }}>Category</Text>
+                <CategorySelector
+                    categories={categories}
+                    selected={selectedCategory}
+                    onSelect={setSelectedCategory}
+                    theme={theme}
+                />
+
+                <Text style={{ fontSize: 18, fontWeight: '600', marginBottom: 6, marginTop: 16, color: theme.label }}>Photo</Text>
+                {imageBase64 ? (
+                    <View style={{ position: 'relative', width: '100%', height: 200, marginBottom: 12 }}>
+                        <Image
+                            source={{ uri: `data:image/jpeg;base64,${imageBase64}` }}
+                            style={{ width: '100%', height: 200, borderRadius: 12 }}
+                        />
+                        <TouchableOpacity
+                            onPress={() => setImageBase64(null)}
+                            style={{
+                                position: 'absolute',
+                                top: 8,
+                                right: 8,
+                                backgroundColor: 'rgba(0,0,0,0.6)',
+                                borderRadius: 16,
+                                width: 32,
+                                height: 32,
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                            }}
+                        >
+                            <Text style={{ color: '#fff', fontSize: 20, fontWeight: 'bold' }}>×</Text>
+                        </TouchableOpacity>
+                    </View>
+                ) : (
+                    <Text style={{ color: theme.noImage, marginBottom: 12 }}>No image selected</Text>
+                )}
+
+                <Pressable
+                    style={{
+                        backgroundColor: theme.imageButton,
+                        padding: 12,
+                        borderRadius: 20,
+                        alignItems: 'center',
+                    }}
+                    onPress={pickImage}
+                >
+                    <Text style={{ color: theme.imageButtonText, fontWeight: '600', fontSize: 16 }}>Choose from Gallery</Text>
+                </Pressable>
+
+                <LabeledInput
+                    label="Notes"
+                    value={notes}
+                    onChangeText={setNotes}
+                    placeholder="Add additional info about this trip..."
+                    multiline
+                    theme={theme}
+                    focused={focused.notes}
+                    onFocus={() => setFocused(prev => ({ ...prev, notes: true }))}
+                    onBlur={() => setFocused(prev => ({ ...prev, notes: false }))}
+                    style={{ minHeight: 100 }}
+                />
+
+                <Pressable
+                    style={{
+                        backgroundColor: theme.button,
+                        paddingVertical: 16,
+                        borderRadius: 30,
+                        marginTop: 30,
+                        alignItems: 'center',
+                        shadowColor: '#000',
+                        shadowOffset: { width: 0, height: 2 },
+                        shadowOpacity: 0.15,
+                        shadowRadius: 5,
+                        elevation: 4,
+                    }}
+                    onPress={updateTrip}
+                >
+                    <Text style={{ color: theme.buttonText, fontWeight: 'bold', fontSize: 18 }}>Save modifies</Text>
+                </Pressable>
+            </ScrollView>
+        </KeyboardAvoidingView>
+    );
+}

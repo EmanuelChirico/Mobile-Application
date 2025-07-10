@@ -7,10 +7,11 @@ import { useColorScheme } from '../hooks/useColorScheme';
 
 type Props = {
   trip: Trip;
+  onEdit: (id: number) => void;
   onDelete: (id: number) => void;
 };
 
-export default function TripCard({ trip, onDelete }: Props) {
+export default function TripCard({ trip, onEdit, onDelete }: Props) {
   const colorScheme = useColorScheme();
   const theme = getTheme(colorScheme ?? 'light');
 
@@ -45,23 +46,39 @@ export default function TripCard({ trip, onDelete }: Props) {
         </TouchableOpacity>
       </Link>
 
-      <TouchableOpacity
-        onPress={() => onDelete(trip.id)}
-        style={{
-          alignSelf: 'flex-end',
-          marginTop: 10,
-          padding: 6,
-          paddingHorizontal: 12,
-          backgroundColor: theme.delete,
-          borderRadius: 20,
-          flexDirection: 'row',
-          alignItems: 'center',
-          gap: 4,
-        }}
-      >
-        <MaterialCommunityIcons name="trash-can-outline" size={20} color="#fff" />
-        <Text style={{ color: '#fff', fontWeight: '600', marginLeft: 4 }}>Delete</Text>
-      </TouchableOpacity>
+        <View style={{ flexDirection: 'row', justifyContent: 'flex-end', gap: 8, marginTop: 10 }}>
+            <TouchableOpacity
+                onPress={() => onEdit(trip.id)}
+                style={{
+                    padding: 6,
+                    paddingHorizontal: 12,
+                    backgroundColor: theme.edit,
+                    borderRadius: 20,
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    gap: 4,
+                }}
+            >
+                <MaterialCommunityIcons name="pencil-outline" size={20} color="#fff" />
+                <Text style={{ color: '#fff', fontWeight: '600', marginLeft: 4 }}>Edit</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+                onPress={() => onDelete(trip.id)}
+                style={{
+                    padding: 6,
+                    paddingHorizontal: 12,
+                    backgroundColor: theme.delete,
+                    borderRadius: 20,
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    gap: 4,
+                }}
+            >
+                <MaterialCommunityIcons name="trash-can-outline" size={20} color="#fff" />
+                <Text style={{ color: '#fff', fontWeight: '600', marginLeft: 4 }}>Delete</Text>
+            </TouchableOpacity>
+        </View>
     </View>
   );
 }

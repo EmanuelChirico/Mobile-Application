@@ -77,6 +77,21 @@ app.get('/api/trips/:id', async (req, res) => {
   }
 });
 
+app.patch('/api/trips/:id', async (req, res) => {
+  const { id } = req.params;
+  const { title, description, image_base64, category, location } = req.body;
+  try {
+    const imageBuffer = image_base64 ? Buffer.from(image_base64, 'base64') : null;
+    const result = await pool.query(
+        'UPDATE trips SET title=$1, description=$2, image=$3, category=$4, location=$5 WHERE id=$6 RETURNING *',
+        [title, description, imageBuffer, category, location, id]
+    );
+    if (result.rowCount === 0) return res.status(404).json({ error: 'Viaggio non trovato' });
+    res.json(result.rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: 'Errore interno del server' });
+  }
+});
 
 app.get('/api/tipology', async (req, res) => {
   try {

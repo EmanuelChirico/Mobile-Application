@@ -81,13 +81,14 @@ export default function Layout() {
           tabBarIcon: ({ color }) => <MaterialCommunityIcons name="plus-circle-outline" size={24} color={color} />,
         }}
       />
-      <Tabs.Screen
-        name="search"
-        options={{
-          title: 'Cerca',
-          tabBarIcon: ({ color }) => <MaterialCommunityIcons name="magnify" size={24} color={color} />,
-        }}
-      />
+        <Tabs.Screen
+            name="[edit]"
+            options={{
+                title: 'Edit Trip',
+                tabBarButton: () => null,
+                tabBarItemStyle: { width: 0, height: 0, display: 'none'},
+            }}
+        />
     </Tabs>
   );
 }

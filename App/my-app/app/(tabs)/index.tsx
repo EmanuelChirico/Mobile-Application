@@ -1,5 +1,5 @@
 import { View, Text, FlatList, TextInput, Alert } from 'react-native';
-import { useFocusEffect, Link } from 'expo-router';
+import { useFocusEffect, Link, useRouter} from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { useColorScheme } from '../../hooks/useColorScheme';
 import { fetchTrips, deleteTrip } from '../../services/trips';
@@ -13,6 +13,7 @@ export default function HomeScreen() {
   const [filteredTravels, setFilteredTravels] = useState<Trip[]>([]);
   const colorScheme = useColorScheme();
   const theme = getTheme(colorScheme ?? 'light');
+  const router = useRouter();
 
   useFocusEffect(
     useCallback(() => {
@@ -37,6 +38,10 @@ export default function HomeScreen() {
       Alert.alert('Errore', 'Impossibile eliminare il viaggio.');
     }
   };
+
+    const handleEdit = (id: number) => {
+        router.push(`/edit?id=${id}`);
+    };
 
   return (
     <View style={{ flex: 1, padding: 20, backgroundColor: theme.background }}>
@@ -67,7 +72,7 @@ export default function HomeScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 100 }}
         renderItem={({ item }) => (
-          <TripCard trip={item} onDelete={handleDelete} />
+          <TripCard trip={item} onEdit={handleEdit} onDelete={handleDelete} />
         )}
         ListEmptyComponent={
           <Text style={{ textAlign: 'center', color: theme.location, marginTop: 50 }}>
