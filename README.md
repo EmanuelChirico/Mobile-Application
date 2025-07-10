@@ -13,41 +13,43 @@ This repository contains the codebase for a group project focused on the design 
 ---
 
 ## 📂 Project Structure
+
+```text
 my-app/
-├── .expo/ # Expo configuration files
+├── .expo/                  # Expo configuration files
 ├── app/
-│ ├── (tabs)/ # Tab navigation structure
-│ │ ├── _layout.tsx
-│ │ ├── add.tsx
-│ │ ├── explore.tsx
-│ │ └── index.tsx
-│ ├── travel/
-│ │ ├── _layout.tsx
-│ │ └── +not-found.tsx
-│ ├── assets/ # Images, fonts, icons
-│ ├── components/ # Reusable UI components
-│ ├── constants/ # Static values and config
-│ ├── hooks/ # Custom hooks
-│ ├── scripts/ # Project scripts
-│ ├── services/ # API calls or business logic
-│ └── types/ # TypeScript types
+│   ├── (tabs)/             # Tab navigation structure
+│   │   ├── _layout.tsx
+│   │   ├── add.tsx
+│   │   ├── explore.tsx
+│   │   └── index.tsx
+│   ├── travel/
+│   │   ├── _layout.tsx
+│   │   └── +not-found.tsx
+│   ├── assets/             # Images, fonts, icons
+│   ├── components/         # Reusable UI components
+│   ├── constants/          # Static values and config
+│   ├── hooks/              # Custom hooks
+│   ├── scripts/            # Project scripts
+│   ├── services/           # API calls or business logic
+│   └── types/              # TypeScript types
 ├── .gitignore
-├── app.json # Expo app configuration
-├── eslint.config.js # Linting rules
-├── expo-env.d.ts # Type definitions for Expo environment
+├── app.json                # Expo app configuration
+├── eslint.config.js        # Linting rules
+├── expo-env.d.ts           # Type definitions for Expo environment
 ├── package-lock.json
 ├── package.json
 ├── README.md
-├── tsconfig.json # TypeScript configuration
+├── tsconfig.json           # TypeScript configuration
 ├── yarn.lock
 
 myapp-backend/
 ├── node_modules/
 ├── .env
-├── index.js # Backend entry point
+├── index.js                # Backend entry point
 ├── package-lock.json
 └── package.json
----
+
 
 ## 🧑‍💻 Team
 
