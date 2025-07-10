@@ -74,7 +74,7 @@ git clone https://github.com/EmanuelChirico/Mobile-Application.git
 ### 3. Move to App/myapp-backend
 In this section, you must change the **.env** file, putting your personal password of PostgreSQL.
 Then, you must create tables in  order to store data about your travels.
-You will find all the create tables in utils folder.
+You will find all the create tables in ***utils/tables.md***.
 
 ### 4. Move to App/my-app/constants/
 In this folder, you must change **costants.ts** putting your personal IPv4.
