@@ -56,6 +56,12 @@ myapp-backend/
 ## 🧑‍💻 Team
 
 This project is developed collaboratively as part of a group assignment.  
+Team members:
+- **Chirico Emanuel** E-mail: e.chirico6@studenti.unisa.it
+- **Ciniello Lorenzo** E-mail: l.ciniello@studenti.unisa.it
+- **Di Carluccio Alessandro** E-mail: a.dicarluccio3@studenti.unisa.it
+- **Donato Simone** E-mail: s.donato6@studenti.unisa.it
+- **Giacchetta Corradomaria** E-mail: c.giacchetta@studenti.unisa.it
 
 ---
 
