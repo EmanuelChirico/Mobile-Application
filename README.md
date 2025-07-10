@@ -59,8 +59,8 @@ This project is developed collaboratively as part of a group assignment.
 
 To run the project locally you must have some requirements:
 
-1) Make sure you have installed PostgreSQL on you personal computer
-2) Make sure you have installed Node.js on your computer
+1) Make sure you have installed PostgreSQL on you personal computer.
+2) Make sure you have installed Node.js on your computer.
 
 ### 1. Clone the repository
 
