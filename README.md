@@ -50,6 +50,7 @@ myapp-backend/
 ├── package-lock.json
 └── package.json
 
+```
 
 ## 🧑‍💻 Team
 
@@ -65,10 +66,10 @@ To run the project locally you must have some requirements:
 2) Make sure you have installed Node.js on your computer.
 
 ### 1. Clone the repository
-
+```text
 git clone https://github.com/EmanuelChirico/Mobile-Application.git
-
-### 2. Move to App/ folder
+```
+### 2. Move to App/
 
 ### 3. Move to App/myapp-backend
 In this section, you must change the **.env** file, putting your personal password of PostgreSQL.
@@ -81,14 +82,15 @@ In this folder, you must change **costants.ts** putting your personal IPv4.
 ### 5. Move to App/myapp-backend 
 Now, open the terminal and write:
 
+```text
 node index.js
-
+```
 And your db will be started!
 
 ### 6. Move to App/my-app/
 Now, open the terminal and write:
-
+```text
 npx expo start
-
+```
 At the end of this process, you will be able to use your application!
 
