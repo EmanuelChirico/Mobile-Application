@@ -24,8 +24,9 @@ my-app/
 │   │   ├── explore.tsx
 │   │   └── index.tsx
 │   ├── travel/
-│   │   ├── _layout.tsx
-│   │   └── +not-found.tsx
+|   |   ├── [id].tsx
+│   ├──+not-found.tsx
+|   ├── _layout.tsx
 │   ├── assets/             # Images, fonts, icons
 │   ├── components/         # Reusable UI components
 │   ├── constants/          # Static values and config
@@ -93,4 +94,3 @@ Now, open the terminal and write:
 npx expo start
 ```
 At the end of this process, you will be able to use your application!
-
