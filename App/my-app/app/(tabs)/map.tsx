@@ -41,7 +41,7 @@ export default function MapScreen() {
                                     'Accept-Language': 'it',
                                 },
                             });
-                            console.log('Geocoding', trip.location, geo.data);
+                            console.log('Geocoding', trip.location);
 
                             if (geo.data.length > 0) {
                                 withCoords.push({
