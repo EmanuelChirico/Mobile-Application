@@ -89,6 +89,13 @@ export default function Layout() {
                 tabBarItemStyle: { width: 0, height: 0, display: 'none'},
             }}
         />
+        <Tabs.Screen
+            name="map"
+            options={{
+                title: 'Map',
+                tabBarIcon: ({ color }) => <MaterialCommunityIcons name="earth" size={24} color={color}/>,
+            }}
+        />
     </Tabs>
   );
 }
