@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "@react-native-community/datetimepicker": "^8.4.2",
+    "react-native-chart-kit": "^6.12.0"
+  }
+}

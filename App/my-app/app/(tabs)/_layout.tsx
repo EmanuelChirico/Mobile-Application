@@ -96,6 +96,13 @@ export default function Layout() {
                 tabBarIcon: ({ color }) => <MaterialCommunityIcons name="earth" size={24} color={color}/>,
             }}
         />
+        <Tabs.Screen
+            name="statistics"
+            options={{
+                title: 'Statistics',
+                tabBarIcon: ({ color }) => <MaterialCommunityIcons name="chart-bar" size={24} color={color} />,
+            }}
+        />
     </Tabs>
   );
 }

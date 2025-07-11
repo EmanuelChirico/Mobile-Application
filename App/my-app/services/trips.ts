@@ -8,7 +8,7 @@ export async function fetchTrips(): Promise<Trip[]> {
   return res.data.map((trip: any): Trip => ({
     id: trip.id,
     title: trip.title,
-    location: trip.description || 'Unknown location',
+    location: trip.location,
     image: trip.image || null,
     isFavorite: trip.isFavorite,
   }));
