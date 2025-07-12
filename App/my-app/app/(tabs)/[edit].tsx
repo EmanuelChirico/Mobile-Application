@@ -1,7 +1,7 @@
 import {
     View, Text, ScrollView, Alert, Image, Pressable, KeyboardAvoidingView, Platform, TouchableOpacity,
 } from 'react-native';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import axios from 'axios';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
@@ -32,10 +32,13 @@ export default function EditScreen() {
         zone: false,
         notes: false,
     });
+    const [locationSuggestions, setLocationSuggestions] = useState<string[]>([]);
+
+    // Ref per debounce location
+    const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     useEffect(() => {
         if (!id) return;
-        // Carica dati viaggio
         axios.get(`${API_BASE_URL}/api/trips/${id}`)
             .then(res => {
                 setTitle(res.data.title || '');
@@ -51,13 +54,42 @@ export default function EditScreen() {
                 router.back();
             });
 
-        // Carica categorie
         axios.get(`${API_BASE_URL}/api/tipology`)
             .then(response => {
                 const names = response.data.map((item: { nome: string }) => item.nome);
                 setCategories(names);
             });
     }, [id]);
+
+    // Funzione con debounce per suggerimenti location
+    const handleZoneChange = (text: string) => {
+        setZone(text);
+        if (debounceRef.current) clearTimeout(debounceRef.current);
+        if (!text || text.length < 3) {
+            setLocationSuggestions([]);
+            return;
+        }
+        debounceRef.current = setTimeout(async () => {
+            try {
+                const response = await axios.get('https://nominatim.openstreetmap.org/search', {
+                    params: {
+                        q: text,
+                        format: 'json',
+                        addressdetails: 1,
+                        limit: 5,
+                    },
+                    headers: {
+                        'User-Agent': 'MobileApp/1.0 (email@email.com)',
+                        'Accept-Language': 'it',
+                    },
+                });
+                const suggestions = response.data.map((item: any) => item.display_name);
+                setLocationSuggestions(suggestions);
+            } catch (err) {
+                console.error('Errore durante il suggerimento località:', err);
+            }
+        }, 400);
+    };
 
     const pickImages = async () => {
         const result = await ImagePicker.launchImageLibraryAsync({
@@ -104,6 +136,7 @@ export default function EditScreen() {
             });
 
             Alert.alert('Successo', 'Viaggio aggiornato!');
+            setLocationSuggestions([]); // Svuota suggerimenti dopo il salvataggio
             router.replace('/');
         } catch (err) {
             console.error(err);
@@ -191,13 +224,35 @@ export default function EditScreen() {
                 <LabeledInput
                     label="Location"
                     value={zone}
-                    onChangeText={setZone}
+                    onChangeText={handleZoneChange}
                     placeholder="e.g. Rome, Italy"
                     theme={theme}
                     focused={focused.zone}
                     onFocus={() => setFocused(prev => ({ ...prev, zone: true }))}
                     onBlur={() => setFocused(prev => ({ ...prev, zone: false }))}
                 />
+
+                {locationSuggestions.length > 0 && (
+                    <View style={{ marginTop: 8, backgroundColor: theme.card, borderRadius: 8 }}>
+                        {locationSuggestions.map((suggestion, index) => (
+                            <Pressable
+                                key={`${suggestion}-${index}`}
+                                onPress={() => {
+                                    setZone(suggestion);
+                                    setLocationSuggestions([]);
+                                }}
+                                style={{
+                                    paddingVertical: 10,
+                                    paddingHorizontal: 12,
+                                    borderBottomWidth: 1,
+                                    borderBottomColor: theme.border,
+                                }}
+                            >
+                                <Text style={{ color: theme.text }}>{suggestion}</Text>
+                            </Pressable>
+                        ))}
+                    </View>
+                )}
 
                 <Text style={{ fontSize: 18, fontWeight: '600', marginBottom: 6, marginTop: 16, color: theme.label }}>Category</Text>
                 <CategorySelector
