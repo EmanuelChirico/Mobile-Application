@@ -1,50 +1,62 @@
-import {
-  View,
-  Text,
-  ScrollView,
-  Alert,
-  Image,
-  Pressable,
-  KeyboardAvoidingView,
-  Platform,
-  TouchableOpacity,
-} from 'react-native';
-import { useState, useCallback } from 'react';
+import { View, Text, TextInput, Pressable, ScrollView, Alert, Image, KeyboardAvoidingView, Platform } from 'react-native';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import axios from 'axios';
 import { useRouter } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
-import { useColorScheme } from '@/hooks/useColorScheme';
+import { useColorScheme } from '../../hooks/useColorScheme';
 import { useFocusEffect } from '@react-navigation/native';
-import { API_BASE_URL } from '@/constants/constants';
-import DateTimePicker from '@react-native-community/datetimepicker';
 
-import LabeledInput from '@/components/LabeledInput';
-import CategorySelector from '@/components/CategorySelector';
+// Debounce per la ricerca località
+function useDebouncedLocationSuggestions(setLocationSuggestions: (s: string[]) => void) {
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-export default function AddScreen() {
-  const router = useRouter();
-  const colorScheme = useColorScheme();
+  const debouncedFetch = (query: string) => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    if (!query || query.length < 3) {
+      setLocationSuggestions([]);
+      return;
+    }
+    timeoutRef.current = setTimeout(async () => {
+      try {
+        const response = await axios.get('https://nominatim.openstreetmap.org/search', {
+          params: {
+            q: query,
+            format: 'json',
+            addressdetails: 1,
+            limit: 5,
+          },
+          headers: {
+            'User-Agent': 'MobileApp/1.0 (your@email.com)',
+            'Accept-Language': 'it',
+          },
+        });
+        const suggestions = response.data.map((item: any) => item.display_name);
+        setLocationSuggestions(suggestions);
+      } catch (err) {
+        console.error('Errore durante il suggerimento località:', err);
+      }
+    }, 400); // 400ms debounce
+  };
+  return debouncedFetch;
+}
 
+function AddScreen() {
+  // Focus state per i campi
+  const [isTitleFocused, setIsTitleFocused] = useState(false);
+  const [isZoneFocused, setIsZoneFocused] = useState(false);
+  const [isNotesFocused, setIsNotesFocused] = useState(false);
   const [title, setTitle] = useState('');
   const [zone, setZone] = useState('');
   const [notes, setNotes] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
-  const [images, setImages] = useState<string[]>([]);
+  const [imageBase64, setImageBase64] = useState<string | null>(null);
   const [categories, setCategories] = useState<string[]>([]);
+  const router = useRouter();
+  const colorScheme = useColorScheme();
   const [locationSuggestions, setLocationSuggestions] = useState<string[]>([]);
+  const fetchLocationSuggestions = useDebouncedLocationSuggestions(setLocationSuggestions);
 
-  const [startDate, setStartDate] = useState<Date | null>(null);
-  const [endDate, setEndDate] = useState<Date | null>(null);
-  const [showStartPicker, setShowStartPicker] = useState(false);
-  const [showEndPicker, setShowEndPicker] = useState(false);
-
-  const [focused, setFocused] = useState({
-    title: false,
-    zone: false,
-    notes: false,
-  });
-
-  const themeColors = {
+  const colors = {
     light: {
       background: '#FAF7ED',
       card: '#fff',
@@ -81,64 +93,35 @@ export default function AddScreen() {
       imageButtonText: '#232323',
       noImage: '#aaa',
     },
+  // RIMUOVI questa duplicazione errata dei focus state
   };
-  const theme = colorScheme === 'dark' ? themeColors.dark : themeColors.light;
+  const theme = colorScheme === 'dark' ? colors.dark : colors.light;
 
   useFocusEffect(
-      useCallback(() => {
-        const fetchCategories = async () => {
-          try {
-            const response = await axios.get(`${API_BASE_URL}/api/tipology`);
-            const names = response.data.map((item: { nome: string }) => item.nome);
-            setCategories(names);
-          } catch (error) {
-            console.error('Errore nel recupero delle categorie:', error);
-          }
-        };
-        fetchCategories();
-      }, [])
+    useCallback(() => {
+      const fetchCategories = async () => {
+        try {
+          const response = await axios.get('http://192.168.1.138:3000/api/tipology');
+          const names = response.data.map((item: { nome: string }) => item.nome);
+          setCategories(names);
+        } catch (error) {
+          console.error('Errore nel recupero delle categorie:', error);
+        }
+      };
+      fetchCategories();
+    }, [])
   );
 
-  const fetchLocationSuggestions = async (query: string) => {
-    if (!query || query.length < 3) {
-      setLocationSuggestions([]);
-      return;
-    }
-
-    try {
-      const response = await axios.get('https://nominatim.openstreetmap.org/search', {
-        params: {
-          q: query,
-          format: 'json',
-          addressdetails: 1,
-          limit: 5,
-        },
-        headers: {
-          'User-Agent': 'MobileApp/1.0 (email@email.com)',
-          'Accept-Language': 'it',
-        },
-      });
-      const suggestions = response.data.map((item: any) => item.display_name);
-      setLocationSuggestions(suggestions);
-    } catch (err) {
-      console.error('Errore durante il suggerimento località:', err);
-    }
-  };
-
-  const pickImages = async () => {
+  const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       base64: true,
-      allowsMultipleSelection: true,
       quality: 0.7,
     });
 
-    if (!result.canceled && result.assets) {
-      setImages(result.assets.map(asset => asset.base64).filter((b): b is string => !!b));    }
-  };
-
-  const handleRemoveImage = (idx: number) => {
-    setImages(prev => prev.filter((_, i) => i !== idx));
+    if (!result.canceled && result.assets[0].base64) {
+      setImageBase64(result.assets[0].base64);
+    }
   };
 
   const handleSave = async () => {
@@ -147,28 +130,24 @@ export default function AddScreen() {
       return;
     }
 
-    if (!startDate || !endDate) {
-      Alert.alert('Errore', 'Devi selezionare sia la data di inizio che quella di fine');
-      return;
-    }
-
-    if (startDate && endDate && endDate < startDate) {
-      Alert.alert('Errore', 'La data di fine non può essere precedente a quella di inizio');
-      return;
-    }
-
     try {
-      await axios.post(`${API_BASE_URL}/api/trips`, {
+      const description = notes; 
+      await axios.post('http://192.168.1.138:3000/api/trips', {
         title,
-        description: notes,
-        images,
+        description,
+        image_base64: imageBase64 || null,
         category: selectedCategory,
         location: zone,
-        start_date: startDate ? startDate.toISOString().slice(0, 10) : null,
-        end_date: endDate ? endDate.toISOString().slice(0, 10) : null,
       });
 
       Alert.alert('Successo', 'Viaggio salvato correttamente!');
+
+      setTitle('');
+      setZone('');
+      setNotes('');
+      setSelectedCategory('');
+      setImageBase64(null);
+
       router.replace('/');
     } catch (err) {
       console.error(err);
@@ -177,220 +156,153 @@ export default function AddScreen() {
   };
 
   return (
-      <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : 'padding'}
-          style={{ flex: 1 }}
-          keyboardVerticalOffset={80}
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'padding'}
+      style={{ flex: 1 }}
+      keyboardVerticalOffset={80}
+    >
+      <ScrollView
+        contentContainerStyle={{ padding: 20, backgroundColor: theme.background, paddingBottom: 80 }}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
       >
-        <ScrollView
-            contentContainerStyle={{
-              flexGrow: 1,
-              padding: 20,
-              backgroundColor: theme.background,
-              paddingBottom: 120,
-            }}
-            showsVerticalScrollIndicator={false}
-            keyboardShouldPersistTaps="handled"
-        >
-          <Text style={{
-            fontSize: 28,
-            fontWeight: 'bold',
-            textAlign: 'center',
-            marginBottom: 24,
+        <Text style={{ fontSize: 28, fontWeight: 'bold', textAlign: 'center', marginBottom: 24, color: theme.text }}>
+          Tell me more!
+        </Text>
+
+        <Text style={{ fontSize: 18, fontWeight: '600', marginBottom: 6, marginTop: 16, color: theme.label }}>Trip Title</Text>
+        <TextInput
+          value={title}
+          onChangeText={setTitle}
+          placeholder="e.g. Weekend in Rome"
+          style={{
+            backgroundColor: theme.card,
+            borderRadius: 16,
+            padding: 14,
+            fontSize: 16,
+            borderWidth: 1,
+            borderColor: isTitleFocused ? theme.borderActive : theme.border,
             color: theme.text,
-          }}>
-            Tell me more!
-          </Text>
+          }}
+          placeholderTextColor={theme.placeholder}
+          onFocus={() => setIsTitleFocused(true)}
+          onBlur={() => setIsTitleFocused(false)}
+        />
 
-          <LabeledInput
-              label="Trip Title"
-              value={title}
-              onChangeText={setTitle}
-              placeholder="e.g. Weekend in Rome"
-              theme={theme}
-              focused={focused.title}
-              onFocus={() => setFocused(prev => ({ ...prev, title: true }))}
-              onBlur={() => setFocused(prev => ({ ...prev, title: false }))}
-          />
+        <Text style={{ fontSize: 18, fontWeight: '600', marginBottom: 6, marginTop: 16, color: theme.label }}>Location</Text>
+        <TextInput
+          value={zone}
+          onChangeText={(text) => {
+            setZone(text);
+            fetchLocationSuggestions(text);
+          }}
+          placeholder="e.g. Rome, Italy"
+          style={{
+            backgroundColor: theme.card,
+            borderRadius: 16,
+            padding: 14,
+            fontSize: 16,
+            borderWidth: 1,
+            borderColor: isZoneFocused ? theme.borderActive : theme.border,
+            color: theme.text,
+          }}
+          placeholderTextColor={theme.placeholder}
+          onFocus={() => setIsZoneFocused(true)}
+          onBlur={() => setIsZoneFocused(false)}
+        />
 
-          <LabeledInput
-              label="Location"
-              value={zone}
-              onChangeText={(text) => {
-                setZone(text);
-                fetchLocationSuggestions(text);
-              }}
-              placeholder="e.g. Rome, Italy"
-              theme={theme}
-              focused={focused.zone}
-              onFocus={() => setFocused(prev => ({ ...prev, zone: true }))}
-              onBlur={() => setFocused(prev => ({ ...prev, zone: false }))}
-          />
+    {locationSuggestions.length > 0 && (
+    <View style={{ marginTop: 8, backgroundColor: theme.card, borderRadius: 8 }}>
+      {locationSuggestions.map((suggestion, index) => (
+    <Pressable
+      key={`${suggestion}-${index}`} // 👈 chiave univoca
+      onPress={() => {
+        setZone(suggestion);
+        setLocationSuggestions([]);
+      }}
+      style={{
+        paddingVertical: 10,
+        paddingHorizontal: 12,
+        borderBottomWidth: 1,
+        borderBottomColor: theme.border,
+      }}
+    >
+      <Text style={{ color: theme.text }}>{suggestion}</Text>
+    </Pressable>
+  ))}
 
-          {locationSuggestions.length > 0 && (
-              <View style={{ marginTop: 8, backgroundColor: theme.card, borderRadius: 8 }}>
-                {locationSuggestions.map((suggestion, index) => (
-                    <Pressable
-                        key={`${suggestion}-${index}`}
-                        onPress={() => {
-                          setZone(suggestion);
-                          setLocationSuggestions([]);
-                        }}
-                        style={{
-                          paddingVertical: 10,
-                          paddingHorizontal: 12,
-                          borderBottomWidth: 1,
-                          borderBottomColor: theme.border,
-                        }}
-                    >
-                      <Text style={{ color: theme.text }}>{suggestion}</Text>
-                    </Pressable>
-                ))}
-              </View>
-          )}
-
-          <Text style={{ fontSize: 18, fontWeight: '600', marginBottom: 6, marginTop: 16, color: theme.label }}>Category</Text>
-
-          <CategorySelector
-              categories={categories}
-              selected={selectedCategory}
-              onSelect={setSelectedCategory}
-              theme={theme}
-          />
-
-          <Text style={{ fontSize: 18, fontWeight: '600', marginBottom: 6, marginTop: 16, color: theme.label }}>Photos</Text>
-          {images.length > 0 ? (
-              <ScrollView horizontal style={{ marginBottom: 12 }}>
-                {images.map((img, idx) => (
-                    <View key={idx} style={{ position: 'relative', marginRight: 8 }}>
-                      <Image
-                          source={{ uri: `data:image/jpeg;base64,${img}` }}
-                          style={{ width: 100, height: 100, borderRadius: 8 }}
-                      />
-                      <TouchableOpacity
-                          onPress={() => handleRemoveImage(idx)}
-                          style={{
-                            position: 'absolute',
-                            top: 4,
-                            right: 4,
-                            backgroundColor: 'rgba(0,0,0,0.6)',
-                            borderRadius: 12,
-                            width: 24,
-                            height: 24,
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                          }}
-                      >
-                        <Text style={{ color: '#fff', fontSize: 16, fontWeight: 'bold' }}>×</Text>
-                      </TouchableOpacity>
-                    </View>
-                ))}
-              </ScrollView>
-          ) : (
-              <Text style={{ color: theme.noImage, marginBottom: 12 }}>No image selected</Text>
-          )}
-
-          <Pressable
+    </View>
+  )}
+        <Text style={{ fontSize: 18, fontWeight: '600', marginBottom: 6, marginTop: 16, color: theme.label }}>Category</Text>
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 8 }}>
+          {categories.map((cat) => (
+            <Pressable
+              key={cat}
+              onPress={() => setSelectedCategory(cat)}
               style={{
-                backgroundColor: theme.imageButton,
-                padding: 12,
+                backgroundColor: selectedCategory === cat ? theme.categorySelected : theme.categoryBg,
+                paddingVertical: 8,
+                paddingHorizontal: 14,
                 borderRadius: 20,
-                alignItems: 'center',
-                marginBottom: 12,
-              }}
-              onPress={pickImages}
-          >
-            <Text style={{ color: theme.imageButtonText, fontWeight: '600', fontSize: 16 }}>Choose from Gallery</Text>
-          </Pressable>
-
-          <Text style={{ fontSize: 18, fontWeight: '600', marginBottom: 6, marginTop: 16, color: theme.label }}>Start Date</Text>
-          <TouchableOpacity
-              style={{
-                backgroundColor: theme.card,
-                padding: 12,
-                borderRadius: 12,
+                marginRight: 8,
                 marginBottom: 8,
-                borderWidth: 1,
-                borderColor: theme.border,
               }}
-              onPress={() => setShowStartPicker(true)}
-          >
-            <Text style={{ color: theme.text }}>
-              {startDate ? startDate.toLocaleDateString() : 'Select start date'}
-            </Text>
-          </TouchableOpacity>
-          {showStartPicker && (
-              <DateTimePicker
-                  value={startDate || new Date()}
-                  mode="date"
-                  display="default"
-                  onChange={(_, date) => {
-                    setShowStartPicker(false);
-                    if (date) setStartDate(date);
-                  }}
-              />
-          )}
+            >
+              <Text
+                style={{
+                  fontSize: 14,
+                  color: selectedCategory === cat ? theme.categoryTextSelected : theme.categoryText,
+                  fontWeight: selectedCategory === cat ? '600' : 'normal',
+                }}
+              >
+                {cat}
+              </Text>
+            </Pressable>
+          ))}
+        </View>
 
-          <Text style={{ fontSize: 18, fontWeight: '600', marginBottom: 6, marginTop: 16, color: theme.label }}>End Date</Text>
-          <TouchableOpacity
-              style={{
-                backgroundColor: theme.card,
-                padding: 12,
-                borderRadius: 12,
-                marginBottom: 8,
-                borderWidth: 1,
-                borderColor: theme.border,
-              }}
-              onPress={() => setShowEndPicker(true)}
-          >
-            <Text style={{ color: theme.text }}>
-              {endDate ? endDate.toLocaleDateString() : 'Select end date'}
-            </Text>
-          </TouchableOpacity>
-          {showEndPicker && (
-              <DateTimePicker
-                  value={endDate || new Date()}
-                  mode="date"
-                  display="default"
-                  minimumDate={startDate || undefined}
-                  onChange={(_, date) => {
-                    setShowEndPicker(false);
-                    if (date) setEndDate(date);
-                  }}
-              />
-          )}
-
-          <LabeledInput
-              label="Notes"
-              value={notes}
-              onChangeText={setNotes}
-              placeholder="Add additional info about this trip..."
-              multiline
-              theme={theme}
-              focused={focused.notes}
-              onFocus={() => setFocused(prev => ({ ...prev, notes: true }))}
-              onBlur={() => setFocused(prev => ({ ...prev, notes: false }))}
-              style={{ minHeight: 100 }}
+        <Text style={{ fontSize: 18, fontWeight: '600', marginBottom: 6, marginTop: 16, color: theme.label }}>Photo</Text>
+        {imageBase64 ? (
+          <Image
+            source={{ uri: `data:image/jpeg;base64,${imageBase64}` }}
+            style={{ width: '100%', height: 200, borderRadius: 12, marginBottom: 12 }}
           />
+        ) : (
+          <Text style={{ color: theme.noImage, marginBottom: 12 }}>No image selected</Text>
+        )}
+        <Pressable style={{ backgroundColor: theme.imageButton, padding: 12, borderRadius: 20, alignItems: 'center' }} onPress={pickImage}>
+          <Text style={{ color: theme.imageButtonText, fontWeight: '600', fontSize: 16 }}>Choose from Gallery</Text>
+        </Pressable>
 
-          <Pressable
-              style={{
-                backgroundColor: theme.button,
-                paddingVertical: 16,
-                borderRadius: 30,
-                marginTop: 30,
-                alignItems: 'center',
-                shadowColor: '#000',
-                shadowOffset: { width: 0, height: 2 },
-                shadowOpacity: 0.15,
-                shadowRadius: 5,
-                elevation: 4,
-              }}
-              onPress={handleSave}
-          >
-            <Text style={{ color: theme.buttonText, fontWeight: 'bold', fontSize: 18 }}>Save</Text>
-          </Pressable>
-        </ScrollView>
-      </KeyboardAvoidingView>
+        <Text style={{ fontSize: 18, fontWeight: '600', marginBottom: 6, marginTop: 16, color: theme.label }}>Notes</Text>
+        <TextInput
+          value={notes}
+          onChangeText={setNotes}
+          placeholder="Add additional info about this trip..."
+          multiline
+          numberOfLines={4}
+          style={{
+            backgroundColor: theme.card,
+            borderRadius: 16,
+            padding: 14,
+            fontSize: 16,
+            borderWidth: 1,
+            borderColor: isNotesFocused ? theme.borderActive : theme.border,
+            color: theme.text,
+            minHeight: 100,
+            textAlignVertical: 'top',
+          }}
+          placeholderTextColor={theme.placeholder}
+          onFocus={() => setIsNotesFocused(true)}
+          onBlur={() => setIsNotesFocused(false)}
+        />
+
+        <Pressable style={{ backgroundColor: theme.button, paddingVertical: 16, borderRadius: 30, marginTop: 30, alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.15, shadowRadius: 5, elevation: 4 }} onPress={handleSave}>
+          <Text style={{ color: theme.buttonText, fontWeight: 'bold', fontSize: 18 }}>Save</Text>
+        </Pressable>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
-}
+};
+
+export default AddScreen;
