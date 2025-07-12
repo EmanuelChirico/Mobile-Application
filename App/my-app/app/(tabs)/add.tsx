@@ -35,7 +35,7 @@ export default function AddScreen() {
   });
 
   // Ref per debounce location
-  const debounceRef = useRef<NodeJS.Timeout | null>(null);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const themeColors = {
     light: {
