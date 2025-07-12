@@ -1,6 +1,6 @@
 /**
  * Below are the colors that are used in the app. The colors are defined in the light and dark mode.
- * There are many other ways to style your app. For example, [Nativewind](https://www.nativewind.dev/), 
+ * There are many other ways to style your app. For example, [Nativewind](https://www.nativewind.dev/),
  * [Tamagui](https://tamagui.dev/), [unistyles](https://reactnativeunistyles.vercel.app), etc.
  */
 export const Colors = {
@@ -11,6 +11,7 @@ export const Colors = {
     title: '#6B4F2C',
     border: '#ddd',
     placeholder: '#999',
+    edit: '#4949d0',
     delete: '#C94C4C',
     location: '#777',
     shadow: '#000',
@@ -22,6 +23,7 @@ export const Colors = {
     title: '#FFD580',
     border: '#333',
     placeholder: '#aaa',
+    edit: '#4949d0',
     delete: '#C94C4C',
     location: '#aaa',
     shadow: '#000',
@@ -102,5 +104,3 @@ export const AddColors = {
     noImage: '#aaa',
   },
 };
-
-

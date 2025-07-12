@@ -3,7 +3,7 @@ import {
   View, Text, Image, StyleSheet,
   Animated, ActivityIndicator,
   Alert, TouchableOpacity,
-  Dimensions
+  Dimensions, ScrollView
 } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useLocalSearchParams } from 'expo-router';
@@ -11,16 +11,16 @@ import axios from 'axios';
 import { useColorScheme } from '../../hooks/useColorScheme';
 import { API_BASE_URL} from "../../constants/constants";
 
-
 type Trip = {
   id: number;
   title: string;
   location: string;
   description: string;
-  image?: string;
+  images?: string[];
   isFavorite?: boolean;
   category?: string;
-  date?: string;
+  start_date?: string;
+  end_date?: string;
 };
 
 export default function TripDetail() {
@@ -73,30 +73,29 @@ export default function TripDetail() {
     }
 
     axios.get(`${API_BASE_URL}/api/trips/${id}`)
-      .then(res => {
-        setTrip(res.data);
-        setIsFavorite(
-          res.data.isFavorite ?? res.data.isfavorite ?? res.data.favorite ?? false
-        );
-        setRipeti(!!(res.data.ripeti ?? res.data.ripeti ?? res.data.ripeti ?? false));
-        // Calcola aspect ratio dell'immagine se presente
-        if (res.data.image) {
-          // Per immagini base64, serve specificare width/height manualmente
-          Image.getSize(
-            `data:image/jpeg;base64,${res.data.image}`,
-            (width, height) => {
-              setAspectRatio(width / height);
-            },
-            () => {
-              setAspectRatio(16 / 9); // fallback
-            }
+        .then(res => {
+          setTrip(res.data);
+          setIsFavorite(
+              res.data.isFavorite ?? res.data.isfavorite ?? res.data.favorite ?? false
           );
-        }
-      })
-      .catch(err => {
-        Alert.alert('Errore', 'Viaggio non trovato o errore nel server.');
-      })
-      .finally(() => setLoading(false));
+          setRipeti(!!(res.data.ripeti ?? res.data.ripeti ?? res.data.ripeti ?? false));
+          // Calcola aspect ratio della prima immagine se presente
+          if (res.data.images && res.data.images.length > 0) {
+            Image.getSize(
+                `data:image/jpeg;base64,${res.data.images[0]}`,
+                (width, height) => {
+                  setAspectRatio(width / height);
+                },
+                () => {
+                  setAspectRatio(16 / 9); // fallback
+                }
+            );
+          }
+        })
+        .catch(err => {
+          Alert.alert('Errore', 'Viaggio non trovato o errore nel server.');
+        })
+        .finally(() => setLoading(false));
   }, [id]);
 
   const toggleFavorite = async () => {
@@ -114,24 +113,6 @@ export default function TripDetail() {
     }
   };
 
-  if (loading) {
-    return (
-      <View style={[styles.centered, { backgroundColor: theme.background }]}>
-        <ActivityIndicator size="large" color={theme.loading} />
-        <Text style={{ marginTop: 10, color: theme.location }}>Caricamento viaggio...</Text>
-      </View>
-    );
-  }
-
-  if (!trip) {
-    return (
-      <View style={[styles.centered, { backgroundColor: theme.background }]}>
-        <Text style={{ fontSize: 18, color: theme.notFound }}>Viaggio non trovato.</Text>
-      </View>
-    );
-  }
-
-
   // Funzione toggleRepeat per il refresh
   async function toggleRepeat() {
     const newValue = !ripeti;
@@ -146,106 +127,110 @@ export default function TripDetail() {
     }
   }
 
+  if (loading) {
+    return (
+        <View style={[styles.centered, { backgroundColor: theme.background }]}>
+          <ActivityIndicator size="large" color={theme.loading} />
+          <Text style={{ marginTop: 10, color: theme.location }}>Caricamento viaggio...</Text>
+        </View>
+    );
+  }
+
+  if (!trip) {
+    return (
+        <View style={[styles.centered, { backgroundColor: theme.background }]}>
+          <Text style={{ fontSize: 18, color: theme.notFound }}>Viaggio non trovato.</Text>
+        </View>
+    );
+  }
+
   return (
-    <Animated.ScrollView
-      style={[styles.container, { backgroundColor: theme.background }]}
-      scrollEventThrottle={16}
-      onScroll={Animated.event(
-        [{ nativeEvent: { contentOffset: { y: scrollY } } }],
-        { useNativeDriver: true }
-      )}
-    >
-      {trip.image && aspectRatio && (
-        <View style={{ zIndex: 1 }}>
-          <Animated.Image
-            source={{ uri: `data:image/jpeg;base64,${trip.image}` }}
-            style={[
-              styles.image,
-              {
-                width: Dimensions.get('window').width,
-                height: Dimensions.get('window').width / aspectRatio,
-                transform: [
-                  {
-                    translateY: scrollY.interpolate({
-                      inputRange: [-200, 0, 200],
-                      outputRange: [-100, 0, 100],
-                      extrapolate: 'clamp',
-                    }),
-                  },
-                  {
-                    scale: scrollY.interpolate({
-                      inputRange: [-200, 0, 200],
-                      outputRange: [1.3, 1, 1],
-                      extrapolate: 'clamp',
-                    }),
-                  },
-                ],
-              },
-            ]}
-            resizeMode="cover"
-          />
-        </View>
-      )}
-
-      <View style={[styles.content, { zIndex: 2, backgroundColor: theme.background, marginTop: -20, borderTopLeftRadius: 20, borderTopRightRadius: 20, paddingTop: 30, minHeight: 100 }]}> 
-
-        <View style={styles.headerRow}>
-          <Text style={[styles.title, { color: theme.title }]}>{trip.title}</Text>
-          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <TouchableOpacity onPress={toggleFavorite}>
-              <MaterialCommunityIcons
-                name={isFavorite ? 'heart' : 'heart-outline'}
-                size={28}
-                color={isFavorite ? '#FF4B4B' : theme.title}
-                style={styles.favorite}
-              />
-            </TouchableOpacity>
-            <View style={{ width: 8 }} />
-            <TouchableOpacity onPress={toggleRepeat}>
-              <MaterialCommunityIcons
-                name="refresh"
-                size={28}
-                color={ripeti ? '#2196F3' : theme.location}
-                style={{ marginLeft: 0, marginRight: 2, opacity: 0.85 }}
-              />
-            </TouchableOpacity>
-
-          </View>
-        </View>
-
-
-        {trip.category && (
-          <View style={[styles.chip, { backgroundColor: theme.chip }]}>
-            <Text style={[styles.chipText, { color: theme.chipText }]}>{trip.category}</Text>
-          </View>
+      <Animated.ScrollView
+          style={[styles.container, { backgroundColor: theme.background }]}
+          scrollEventThrottle={16}
+          onScroll={Animated.event(
+              [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+              { useNativeDriver: true }
+          )}
+      >
+        {trip.images && trip.images.length > 0 && aspectRatio && (
+            <ScrollView horizontal pagingEnabled>
+              {trip.images.map((img, idx) => (
+                  <Animated.Image
+                      key={idx}
+                      source={{ uri: `data:image/jpeg;base64,${img}` }}
+                      style={[
+                        styles.image,
+                        {
+                          width: Dimensions.get('window').width,
+                          height: Dimensions.get('window').width / aspectRatio,
+                          borderBottomLeftRadius: 16,
+                          borderBottomRightRadius: 16,
+                          backgroundColor: '#eee',
+                        },
+                      ]}
+                      resizeMode="cover"
+                  />
+              ))}
+            </ScrollView>
         )}
 
+        <View style={[styles.content, { zIndex: 2, backgroundColor: theme.background, marginTop: -20, borderTopLeftRadius: 20, borderTopRightRadius: 20, paddingTop: 30, minHeight: 100 }]}>
 
-        <View style={{ marginBottom: 16 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 2 }}>
-            <MaterialCommunityIcons name="map-marker" size={18} color={theme.location} style={{ marginRight: 4 }} />
-            <Text style={[styles.location, { color: theme.location, fontWeight: 'bold', maxWidth: '90%' }]} numberOfLines={1} ellipsizeMode="tail">{(trip.location || (trip.description && trip.description.split('\n')[0].replace('Zona: ', '')) || 'Zona non disponibile')}</Text>
-          </View>
-          {trip.date && (
+          <View style={styles.headerRow}>
+            <Text style={[styles.title, { color: theme.title }]}>{trip.title}</Text>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <MaterialCommunityIcons name="calendar" size={18} color={theme.date} style={{ marginRight: 4, marginTop: 0 }} />
-              <Text style={[styles.date, { color: theme.date }]}>{new Date(trip.date).toLocaleDateString()}</Text>
+              <TouchableOpacity onPress={toggleFavorite}>
+                <MaterialCommunityIcons
+                    name={isFavorite ? 'heart' : 'heart-outline'}
+                    size={28}
+                    color={isFavorite ? '#FF4B4B' : theme.title}
+                    style={styles.favorite}
+                />
+              </TouchableOpacity>
+              <View style={{ width: 8 }} />
+              <TouchableOpacity onPress={toggleRepeat}>
+                <MaterialCommunityIcons
+                    name="refresh"
+                    size={28}
+                    color={ripeti ? '#2196F3' : theme.location}
+                    style={{ marginLeft: 0, marginRight: 2, opacity: 0.85 }}
+                />
+              </TouchableOpacity>
             </View>
-          )}
-        </View>
-
-
-        <View style={styles.section}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
-            <MaterialCommunityIcons name="note-text-outline" size={18} color={theme.sectionTitle} style={{ marginRight: 6 }} />
-            <Text style={[styles.sectionTitle, { color: theme.sectionTitle }]}>Descrizione</Text>
           </View>
-          <Text style={[styles.description, { color: theme.description }]}>{trip.description}</Text>
+
+          {trip.category && (
+              <View style={[styles.chip, { backgroundColor: theme.chip }]}>
+                <Text style={[styles.chipText, { color: theme.chipText }]}>{trip.category}</Text>
+              </View>
+          )}
+
+          <View style={{ marginBottom: 16 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 2 }}>
+              <MaterialCommunityIcons name="map-marker" size={18} color={theme.location} style={{ marginRight: 4 }} />
+              <Text style={[styles.location, { color: theme.location, fontWeight: 'bold', maxWidth: '90%' }]} numberOfLines={1} ellipsizeMode="tail">{trip.location || 'Zona non disponibile'}</Text>
+            </View>
+            {trip.start_date && trip.end_date && (
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <MaterialCommunityIcons name="calendar" size={18} color={theme.date} style={{ marginRight: 4, marginTop: 0 }} />
+                  <Text style={[styles.date, { color: theme.date }]}>
+                    {new Date(trip.start_date).toLocaleDateString()} - {new Date(trip.end_date).toLocaleDateString()}
+                  </Text>
+                </View>
+            )}
+          </View>
+
+          <View style={styles.section}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
+              <MaterialCommunityIcons name="note-text-outline" size={18} color={theme.sectionTitle} style={{ marginRight: 6 }} />
+              <Text style={[styles.sectionTitle, { color: theme.sectionTitle }]}>Descrizione</Text>
+            </View>
+            <Text style={[styles.description, { color: theme.description }]}>{trip.description}</Text>
+          </View>
+          <View style={{ height: Dimensions.get('window').height / 2 }} />
         </View>
-        {/* Spazio vuoto extra in fondo per evitare che la descrizione sia attaccata al bordo */}
-        <View style={{ height: Dimensions.get('window').height / 2 }} />
-      </View>
-    </Animated.ScrollView>
+      </Animated.ScrollView>
   );
 }
 
@@ -325,5 +310,3 @@ const styles = StyleSheet.create({
     lineHeight: 22,
   },
 });
-
-
