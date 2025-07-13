@@ -3,7 +3,7 @@ export type Trip = {
   title: string;
   location: string;
   description?: string;
-  images?: string[]; // array di immagini base64
+  images?: string[];
   isFavorite?: boolean;
   category?: string;
   start_date?: string;
@@ -13,7 +13,7 @@ export type Trip = {
 export type NewTrip = {
   title: string;
   description: string;
-  images?: string[]; // array di immagini base64
+  images?: string[];
   category: string;
   location: string;
   start_date?: string;

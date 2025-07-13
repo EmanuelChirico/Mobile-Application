@@ -34,7 +34,6 @@ export default function EditScreen() {
     });
     const [locationSuggestions, setLocationSuggestions] = useState<string[]>([]);
 
-    // Ref per debounce location
     const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     useEffect(() => {
@@ -61,7 +60,6 @@ export default function EditScreen() {
             });
     }, [id]);
 
-    // Funzione con debounce per suggerimenti location
     const handleZoneChange = (text: string) => {
         setZone(text);
         if (debounceRef.current) clearTimeout(debounceRef.current);
@@ -136,7 +134,7 @@ export default function EditScreen() {
             });
 
             Alert.alert('Successo', 'Viaggio aggiornato!');
-            setLocationSuggestions([]); // Svuota suggerimenti dopo il salvataggio
+            setLocationSuggestions([]);
             router.replace('/');
         } catch (err) {
             console.error(err);

@@ -35,18 +35,15 @@ export default function StatsScreen() {
         axios.get(`${API_BASE_URL}/api/trips`).then(res => setTrips(res.data));
     }, []);
 
-    // Statistiche
     const total = trips.length;
     const favorites = trips.filter(t => t.isFavorite).length;
 
-    // Viaggi per categoria
     const categoryCount: Record<string, number> = {};
     trips.forEach(t => {
         const cat = t.category || 'Uncategorized';
         categoryCount[cat] = (categoryCount[cat] || 0) + 1;
     });
 
-    // Durata media
     const durations = trips
         .filter(t => t.start_date && t.end_date)
         .map(t => {
@@ -77,7 +74,7 @@ export default function StatsScreen() {
                             <View
                                 style={{
                                     width: 30,
-                                    height: (count as number) * 30, // Scala l'altezza in base al valore
+                                    height: (count as number) * 30,
                                     backgroundColor: colorScheme === 'dark' ? '#FFD580' : '#2C2C2C',
                                     borderRadius: 8,
                                     marginBottom: 6,

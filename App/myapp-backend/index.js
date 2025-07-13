@@ -11,7 +11,6 @@ const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
 });
 
-// POST trip: accetta start_date, end_date e images (array base64)
 app.post('/api/trips', async (req, res) => {
   const { title, description, category, location, start_date, end_date, images } = req.body;
   try {
@@ -36,7 +35,6 @@ app.post('/api/trips', async (req, res) => {
   }
 });
 
-// GET trip: restituisce anche tutte le immagini
 app.get('/api/trips/:id', async (req, res) => {
   const { id } = req.params;
   try {
@@ -59,7 +57,6 @@ app.get('/api/trips/:id', async (req, res) => {
   }
 });
 
-// GET tutti i viaggi (senza immagini)
 app.get('/api/trips', async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM trips ORDER BY date DESC');
@@ -74,7 +71,6 @@ app.get('/api/trips', async (req, res) => {
   }
 });
 
-// PATCH preferito
 app.patch('/api/trips/:id/favorite', async (req, res) => {
   const { id } = req.params;
   const { isfavorite } = req.body;
@@ -93,7 +89,6 @@ app.patch('/api/trips/:id/favorite', async (req, res) => {
   }
 });
 
-// PATCH ripeti
 app.patch('/api/trips/:id/repeat', async (req, res) => {
   const { id } = req.params;
   const { ripeti } = req.body;
@@ -112,7 +107,6 @@ app.patch('/api/trips/:id/repeat', async (req, res) => {
   }
 });
 
-// PATCH modifica viaggio (senza immagini)
 app.patch('/api/trips/:id', async (req, res) => {
   const { id } = req.params;
   const { title, description, category, location, start_date, end_date } = req.body;
@@ -129,7 +123,6 @@ app.patch('/api/trips/:id', async (req, res) => {
   }
 });
 
-// DELETE viaggio
 app.delete('/api/trips/:id', async (req, res) => {
   const { id } = req.params;
   try {
@@ -144,7 +137,6 @@ app.delete('/api/trips/:id', async (req, res) => {
   }
 });
 
-// GET tipologie
 app.get('/api/tipology', async (req, res) => {
   try {
     const result = await pool.query('SELECT nome FROM tipology ORDER BY nome ASC');
@@ -155,7 +147,6 @@ app.get('/api/tipology', async (req, res) => {
   }
 });
 
-// POST tipologia
 app.post('/api/tipology', async (req, res) => {
   const { nome } = req.body;
   try {
@@ -170,7 +161,6 @@ app.post('/api/tipology', async (req, res) => {
   }
 });
 
-// DELETE tipologia
 app.delete('/api/tipology/:nome', async (req, res) => {
   const { nome } = req.params;
   try {

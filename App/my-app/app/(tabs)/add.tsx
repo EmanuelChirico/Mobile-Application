@@ -34,7 +34,6 @@ export default function AddScreen() {
     notes: false,
   });
 
-  // Ref per debounce location
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const themeColors = {
@@ -92,7 +91,6 @@ export default function AddScreen() {
       }, [])
   );
 
-  // Funzione con debounce per suggerimenti location
   const handleZoneChange = (text: string) => {
     setZone(text);
     if (debounceRef.current) clearTimeout(debounceRef.current);
@@ -139,7 +137,6 @@ export default function AddScreen() {
     setImages(prev => prev.filter((_, i) => i !== idx));
   };
 
-  // Reset di tutti i campi dopo il salvataggio
   const handleSave = async () => {
     if (!title.trim()) {
       Alert.alert('Errore', 'Il titolo è obbligatorio');
@@ -168,7 +165,6 @@ export default function AddScreen() {
       });
 
       Alert.alert('Successo', 'Viaggio salvato correttamente!');
-      // Svuota tutti i campi
       setTitle('');
       setZone('');
       setNotes('');
