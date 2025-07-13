@@ -82,14 +82,6 @@ export default function Layout() {
                 }}
             />
             <Tabs.Screen
-                name="[edit]"
-                options={{
-                    title: 'Edit Trip',
-                    tabBarButton: () => null,
-                    tabBarItemStyle: { width: 0, height: 0, display: 'none'},
-                }}
-            />
-            <Tabs.Screen
                 name="map"
                 options={{
                     title: 'Map',
