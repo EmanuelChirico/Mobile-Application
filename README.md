@@ -26,6 +26,7 @@ my-app/
 │   ├── travel/
 |   |   ├── [id].tsx
 │   ├──+not-found.tsx
+|   ├── [edit].tsx 
 |   ├── _layout.tsx
 │   ├── assets/             # Images, fonts, icons
 │   ├── components/         # Reusable UI components
