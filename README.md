@@ -1,6 +1,6 @@
-# 📱 Mobile Application
+# 📱 MemoLuggage
 
-This repository contains the codebase for a group project focused on the design and development of a cross-platform mobile application.
+This repository contains the codebase for MemoLuggage, a group project focused on the design and development of a cross-platform mobile application for saving and organizing travel experiences.
 
 ---
 
