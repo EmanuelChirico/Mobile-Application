@@ -9,7 +9,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useLocalSearchParams } from 'expo-router';
 import axios from 'axios';
 import { useColorScheme } from '../../hooks/useColorScheme';
-import { API_BASE_URL} from "../../constants/constants";
+import { API_BASE_URL } from "../../constants/constants";
 
 type Trip = {
   id: number;
@@ -28,8 +28,9 @@ export default function TripDetail() {
   const [trip, setTrip] = useState<Trip | null>(null);
   const [loading, setLoading] = useState(true);
   const [isFavorite, setIsFavorite] = useState(false);
-  const [aspectRatio, setAspectRatio] = useState<number | null>(null);
+  const [aspectRatios, setAspectRatios] = useState<number[]>([]);
   const [ripeti, setRipeti] = useState<boolean>(false);
+  const [currentIndex, setCurrentIndex] = useState(0);
   const colorScheme = useColorScheme();
   const scrollY = useState(new Animated.Value(0))[0];
 
@@ -79,20 +80,23 @@ export default function TripDetail() {
               res.data.isFavorite ?? res.data.isfavorite ?? res.data.favorite ?? false
           );
           setRipeti(!!(res.data.ripeti ?? res.data.ripeti ?? res.data.ripeti ?? false));
-          // Calcola aspect ratio della prima immagine se presente
           if (res.data.images && res.data.images.length > 0) {
-            Image.getSize(
-                `data:image/jpeg;base64,${res.data.images[0]}`,
-                (width, height) => {
-                  setAspectRatio(width / height);
-                },
-                () => {
-                  setAspectRatio(16 / 9); // fallback
-                }
-            );
+            Promise.all(
+                res.data.images.map((img: string) =>
+                    new Promise<number>(resolve => {
+                      Image.getSize(
+                          `data:image/jpeg;base64,${img}`,
+                          (width, height) => resolve(width / height),
+                          () => resolve(16 / 9)
+                      );
+                    })
+                )
+            ).then(setAspectRatios);
+          } else {
+            setAspectRatios([]);
           }
         })
-        .catch(err => {
+        .catch(() => {
           Alert.alert('Errore', 'Viaggio non trovato o errore nel server.');
         })
         .finally(() => setLoading(false));
@@ -113,7 +117,6 @@ export default function TripDetail() {
     }
   };
 
-  // Funzione toggleRepeat per il refresh
   async function toggleRepeat() {
     const newValue = !ripeti;
     setRipeti(newValue);
@@ -121,7 +124,7 @@ export default function TripDetail() {
       await axios.patch(`${API_BASE_URL}/api/trips/${trip?.id}/repeat`, {
         ripeti: newValue,
       });
-    } catch (err) {
+    } catch {
       setRipeti(!newValue);
       Alert.alert('Errore', 'Impossibile aggiornare lo stato "da ripetere".');
     }
@@ -144,6 +147,10 @@ export default function TripDetail() {
     );
   }
 
+  const maxWidth = Dimensions.get('window').width;
+  const aspect = aspectRatios[currentIndex] || (16 / 9);
+  const dynamicHeight = maxWidth / aspect;
+
   return (
       <Animated.ScrollView
           style={[styles.container, { backgroundColor: theme.background }]}
@@ -153,24 +160,41 @@ export default function TripDetail() {
               { useNativeDriver: true }
           )}
       >
-        {trip.images && trip.images.length > 0 && aspectRatio && (
-            <ScrollView horizontal pagingEnabled>
+        {trip.images && trip.images.length > 0 && aspectRatios.length === trip.images.length && (
+            <ScrollView
+                horizontal
+                pagingEnabled
+                showsHorizontalScrollIndicator={false}
+                style={{ width: maxWidth, height: dynamicHeight }}
+                onMomentumScrollEnd={e => {
+                  const idx = Math.round(
+                      e.nativeEvent.contentOffset.x / maxWidth
+                  );
+                  setCurrentIndex(idx);
+                }}
+            >
               {trip.images.map((img, idx) => (
-                  <Animated.Image
+                  <View
                       key={idx}
-                      source={{ uri: `data:image/jpeg;base64,${img}` }}
-                      style={[
-                        styles.image,
-                        {
-                          width: Dimensions.get('window').width,
-                          height: Dimensions.get('window').width / aspectRatio,
-                          borderBottomLeftRadius: 16,
-                          borderBottomRightRadius: 16,
-                          backgroundColor: '#eee',
-                        },
-                      ]}
-                      resizeMode="cover"
-                  />
+                      style={{
+                        width: maxWidth,
+                        height: dynamicHeight,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        backgroundColor: theme.background,
+                      }}
+                  >
+                    <Animated.Image
+                        source={{ uri: `data:image/jpeg;base64,${img}` }}
+                        style={{
+                          width: maxWidth,
+                          height: maxWidth / (aspectRatios[idx] || (16 / 9)),
+                          borderRadius: 16,
+                          backgroundColor: theme.background,
+                        }}
+                        resizeMode="contain"
+                    />
+                  </View>
               ))}
             </ScrollView>
         )}
