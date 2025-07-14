@@ -22,12 +22,14 @@ my-app/
 │   │   ├── _layout.tsx
 │   │   ├── add.tsx
 │   │   ├── explore.tsx
-│   │   └── index.tsx
+|   |   ├── index.tsx
+|   |   ├── map.tsx
+│   │   └── statistics.tsx
 │   ├── travel/
 |   |   ├── [id].tsx
-│   ├──+not-found.tsx
-|   ├── [edit].tsx 
-|   ├── _layout.tsx
+│   ├── [edit].tsx 
+|   ├── _layout.tsx 
+|   ├── +not-found.tsx
 │   ├── assets/             # Images, fonts, icons
 │   ├── components/         # Reusable UI components
 │   ├── constants/          # Static values and config
